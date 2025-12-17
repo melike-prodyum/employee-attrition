@@ -36,8 +36,8 @@ print("="*70)
 print("\n[1] Veri Yükleme ve Ön İşleme")
 print("-"*70)
 
-train_df = pd.read_csv('data/aug_train.csv')
-test_df = pd.read_csv('data/aug_test.csv')
+train_df = pd.read_csv('../data/aug_train.csv')
+test_df = pd.read_csv('../data/aug_test.csv')
 
 y = train_df['target']
 X_train = train_df.drop(['enrollee_id', 'target'], axis=1)
@@ -81,10 +81,18 @@ print(f"✓ Veri hazır - Train: {X_train_split.shape}, Validation: {X_val_split
 print("\n[2] Decision Tree Modeli")
 print("-"*70)
 
+print("🌳 Decision Tree parametreleri:")
+print("  - max_depth: 5 (ağacın maksimum derinliği)")
+print("  - min_samples_split: 100 (dallanma için minimum örnek sayısı)")
+print("  - min_samples_leaf: 50 (yaprak düğümdeki minimum örnek sayısı)")
+print("  - criterion: gini (bölünme kriteri)")
+print("  - random_state: 42")
+print("  - class_weight: balanced (dengesiz veri için)")
+
 dt_model = DecisionTreeClassifier(
-    max_depth=4,
-    min_samples_split=200,
-    min_samples_leaf=100,
+    max_depth=5,
+    min_samples_split=100,
+    min_samples_leaf=50,
     criterion='gini',
     random_state=42,
     class_weight='balanced'
@@ -129,15 +137,27 @@ print(f"  Yaprak Sayısı:        {dt_metrics['Leaves']}")
 print("\n[3] Random Forest Modeli")
 print("-"*70)
 
+print("🌲 Random Forest parametreleri:")
+print("  - n_estimators: 100 (100 farklı decision tree)")
+print("  - max_depth: 4 (her ağacın maksimum derinliği - basit)")
+print("  - min_samples_split: 200 (dallanma için minimum örnek)")
+print("  - min_samples_leaf: 100 (yaprak düğümdeki minimum örnek)")
+print("  - criterion: gini (bölünme kriteri)")
+print("  - random_state: 42")
+print("  - class_weight: balanced (dengesiz veri için)")
+print("  - n_jobs: -1 (paralel işleme)")
+print("  - max_features: sqrt (her dallanmada rastgele feature seç)")
+
 rf_model = RandomForestClassifier(
-    n_estimators=100,        # 100 ağaç
-    max_depth=4,             # Her ağaç için maksimum derinlik
+    n_estimators=100,
+    max_depth=4,
     min_samples_split=200,
     min_samples_leaf=100,
     criterion='gini',
     random_state=42,
     class_weight='balanced',
-    n_jobs=-1                # Paralel işleme
+    n_jobs=-1,
+    max_features='sqrt'
 )
 
 print("⏳ Random Forest eğitiliyor (100 ağaç)...")
@@ -316,7 +336,7 @@ plt.legend()
 plt.grid(True, alpha=0.3, axis='y')
 
 plt.tight_layout()
-plt.savefig('outputs/model_comparison.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/model_comparison.png', dpi=300, bbox_inches='tight')
 print("✓ Birleşik karşılaştırma grafiği kaydedildi: outputs/model_comparison.png")
 
 # ============================================================================
@@ -343,7 +363,7 @@ plt.legend()
 plt.ylim([0, 1])
 plt.grid(True, alpha=0.3, axis='y')
 plt.tight_layout()
-plt.savefig('outputs/compare_metrics.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/compare_metrics.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Metrics Comparison kaydedildi")
 
@@ -360,7 +380,7 @@ plt.title('ROC Curve Karşılaştırması', fontsize=14, fontweight='bold')
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.savefig('outputs/compare_roc_curves.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/compare_roc_curves.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ ROC Curves kaydedildi")
 
@@ -374,7 +394,7 @@ plt.title('Decision Tree - Confusion Matrix', fontsize=14, fontweight='bold')
 plt.ylabel('Gerçek Değer')
 plt.xlabel('Tahmin')
 plt.tight_layout()
-plt.savefig('outputs/compare_dt_confusion_matrix.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/compare_dt_confusion_matrix.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Decision Tree Confusion Matrix kaydedildi")
 
@@ -388,7 +408,7 @@ plt.title('Random Forest - Confusion Matrix', fontsize=14, fontweight='bold')
 plt.ylabel('Gerçek Değer')
 plt.xlabel('Tahmin')
 plt.tight_layout()
-plt.savefig('outputs/compare_rf_confusion_matrix.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/compare_rf_confusion_matrix.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Random Forest Confusion Matrix kaydedildi")
 
@@ -409,7 +429,7 @@ plt.title('Top 8 Feature Importance Karşılaştırması', fontsize=14, fontweig
 plt.legend()
 plt.gca().invert_yaxis()
 plt.tight_layout()
-plt.savefig('outputs/compare_feature_importance.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/compare_feature_importance.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Feature Importance kaydedildi")
 
@@ -431,7 +451,7 @@ plt.xticks(x, models)
 plt.legend()
 plt.grid(True, alpha=0.3, axis='y')
 plt.tight_layout()
-plt.savefig('outputs/compare_overfitting.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/compare_overfitting.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Overfitting Analysis kaydedildi")
 
@@ -453,7 +473,8 @@ final_rf = RandomForestClassifier(
     criterion='gini',
     random_state=42,
     class_weight='balanced',
-    n_jobs=-1
+    n_jobs=-1,
+    max_features='sqrt'
 )
 
 print("⏳ Final Random Forest modeli eğitiliyor...")
@@ -464,10 +485,10 @@ print("✓ Eğitim tamamlandı!")
 rf_test_predictions = final_rf.predict_proba(X_test)[:, 1]
 
 # Submission dosyası
-submission = pd.read_csv('data/sample_submission.csv')
+submission = pd.read_csv('../data/sample_submission.csv')
 submission['target'] = rf_test_predictions
-os.makedirs('submissions', exist_ok=True)
-submission.to_csv('submissions/submission_random_forest.csv', index=False)
+os.makedirs('../submissions', exist_ok=True)
+submission.to_csv('../submissions/submission_random_forest.csv', index=False)
 print(f"✓ Random Forest submission dosyası: submissions/submission_random_forest.csv")
 
 # ============================================================================
