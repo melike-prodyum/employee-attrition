@@ -38,9 +38,11 @@ print("\n[1] Veri Yükleme ve Keşif Analizi")
 print("-"*70)
 
 # Veri setlerini yükle
-train_df = pd.read_csv('../data/aug_train.csv')
-test_df = pd.read_csv('../data/aug_test.csv')
-submission = pd.read_csv('../data/sample_submission.csv')
+import os
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+train_df = pd.read_csv(os.path.join(project_root, 'data', 'aug_train.csv'))
+test_df = pd.read_csv(os.path.join(project_root, 'data', 'aug_test.csv'))
+submission = pd.read_csv(os.path.join(project_root, 'data', 'sample_submission.csv'))
 
 print(f"✓ Train veri seti boyutu: {train_df.shape}")
 print(f"✓ Test veri seti boyutu: {test_df.shape}")
@@ -139,16 +141,16 @@ print(f"✓ Validation set: {X_val_split.shape[0]} örnekleri")
 
 # Decision Tree modeli - Basit ve az dallı (Random Forest ile karşılaştırma için)
 print("\n🌳 Decision Tree parametreleri:")
-print("  - max_depth: 4 (ağacın maksimum derinliği - basit tutuldu)")
-print("  - min_samples_split: 200 (dallanma için minimum örnek sayısı)")
-print("  - min_samples_leaf: 100 (yaprak düğümdeki minimum örnek sayısı)")
+print("  - max_depth: 7 (ağacın maksimum derinliği - optimize edildi)")
+print("  - min_samples_split: 50 (dallanma için minimum örnek sayısı)")
+print("  - min_samples_leaf: 25 (yaprak düğümdeki minimum örnek sayısı)")
 print("  - criterion: gini (bölünme kriteri)")
 print("  - random_state: 42")
 
 dt_model = DecisionTreeClassifier(
-    max_depth=4,                    # Basit ve anlaşılır ağaç için düşük derinlik
-    min_samples_split=200,          # Daha az dallanma için artırıldı
-    min_samples_leaf=100,           # Her yaprakta daha fazla örnek - daha az dal
+    max_depth=7,                    # Daha iyi öğrenme için arttırıldı, yine de yorumlanabilir
+    min_samples_split=50,           # Daha fazla dallanma için azaltıldı
+    min_samples_leaf=25,            # Daha detaylı öğrenme için azaltıldı
     criterion='gini',               # Gini impurity kullan
     random_state=42,
     class_weight='balanced'         # Dengesiz veri için sınıf ağırlıkları
@@ -441,9 +443,9 @@ print("-"*70)
 # Tüm train verisi ile son modeli eğit
 print("⏳ Final model tüm train verisi ile eğitiliyor...")
 final_model = DecisionTreeClassifier(
-    max_depth=4,
-    min_samples_split=200,
-    min_samples_leaf=100,
+    max_depth=7,
+    min_samples_split=50,
+    min_samples_leaf=25,
     criterion='gini',
     random_state=42,
     class_weight='balanced'
