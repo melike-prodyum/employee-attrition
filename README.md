@@ -40,14 +40,24 @@ python decision_tree_model.py
 - `decision_tree_full.png` - Tam ağaç yapısı
 - `submission_decision_tree.csv` - Test tahminleri
 
-### 2. Model Karşılaştırması (Decision Tree vs Random Forest)
+### 2. Random Forest Modeli
+```bash
+python random_forest_model.py
+```
+
+**Çıktılar:**
+- `random_forest_analysis.png` - Genel analiz grafikleri (4 ağaç örneği)
+- `random_forest_single_tree.png` - Tek ağaç tam yapısı
+- `random_forest_tree_stats.png` - Ağaç istatistikleri
+- `submission_random_forest.csv` - Test tahminleri
+
+### 3. Model Karşılaştırması (Decision Tree vs Random Forest)
 ```bash
 python compare_models.py
 ```
 
 **Çıktılar:**
 - `model_comparison.png` - Karşılaştırma grafikleri
-- `submission_random_forest.csv` - Random Forest tahminleri
 
 ---
 
@@ -56,39 +66,40 @@ python compare_models.py
 ### Decision Tree (Validation Set)
 | Metrik | Değer |
 |--------|-------|
-| **Accuracy** | 0.6806 |
-| **Precision** | 0.4253 |
-| **Recall** | 0.8021 |
-| **F1-Score** | 0.5559 |
-| **ROC-AUC** | 0.7823 |
+| **Accuracy** | 0.6936 |
+| **Precision** | 0.4325 |
+| **Recall** | 0.7351 |
+| **F1-Score** | 0.5446 |
+| **ROC-AUC** | 0.7700 |
 
 **Model Özellikleri:**
-- Ağaç Derinliği: 6
-- Yaprak Sayısı: 40
+- Ağaç Derinliği: 4
+- Yaprak Sayısı: 13
 - Tek ağaç kullanır
-- Yorumlanabilir
+- Basit ve yorumlanabilir
 
 ### Random Forest (Validation Set)
 | Metrik | Değer |
 |--------|-------|
-| **Accuracy** | 0.7657 |
-| **Precision** | 0.5231 |
-| **Recall** | 0.6754 |
-| **F1-Score** | 0.5896 |
-| **ROC-AUC** | 0.7956 |
+| **Accuracy** | 0.7677 |
+| **Precision** | 0.5272 |
+| **Recall** | 0.6586 |
+| **F1-Score** | 0.5857 |
+| **ROC-AUC** | 0.7877 |
 
 **Model Özellikleri:**
 - Ağaç Sayısı: 100
-- Her ağaç derinliği: 6
+- Her ağaç derinliği: 4
+- Ortalama yaprak sayısı: ~14
 - Ensemble metodu
-- Daha robust
+- Daha robust ve dengeli
 
-### İyileşmeler (Random Forest)
-- **Accuracy**: +12.50% ↑
-- **Precision**: +22.99% ↑
-- **Recall**: -15.80% ↓
-- **F1-Score**: +6.06% ↑
-- **ROC-AUC**: +1.70% ↑
+### İyileşmeler (Random Forest vs Decision Tree)
+- **Accuracy**: +10.68% ↑
+- **Precision**: +21.90% ↑
+- **Recall**: -10.40% ↓
+- **F1-Score**: +7.54% ↑
+- **ROC-AUC**: +2.31% ↑
 
 ---
 
@@ -126,11 +137,13 @@ python compare_models.py
 | Özellik | Decision Tree | Random Forest |
 |---------|---------------|---------------|
 | Ağaç Sayısı | 1 | 100 |
+| Ağaç Derinliği | 4 | 4 (her biri) |
+| Yaprak Sayısı | 13 | ~14 (her ağaç) |
 | Veri Örnekleme | Tüm veri | Bootstrap sampling |
-| Feature Seçimi | Tüm features | Rastgele subset |
+| Feature Seçimi | Tüm features | Rastgele subset (sqrt) |
 | Tahmin | Tek ağaç | Ağaçların ortalaması |
 | Yorumlanabilirlik | Yüksek | Düşük |
-| Doğruluk | Düşük | Yüksek |
+| Accuracy | 69.36% | 76.77% |
 
 ---
 
@@ -177,10 +190,9 @@ python compare_models.py
 
 ### Decision Tree
 ```python
-DecisionTreeClassifier(
-    max_depth=6,              # Çok dallı olmasın
-    min_samples_split=100,    # Dallanma için min örnek
-    min_samples_leaf=50,      # Her yaprakta min örnek
+DecisionTreeCl4,              # Basit ağaç (4 seviye)
+    min_samples_split=200,    # Dallanma için min örnek
+    min_samples_leaf=100,     # Her yaprakta min örnek
     criterion='gini',         # Bölünme kriteri
     class_weight='balanced'   # Sınıf dengesi
 )
@@ -190,11 +202,13 @@ DecisionTreeClassifier(
 ```python
 RandomForestClassifier(
     n_estimators=100,         # 100 ağaç
-    max_depth=6,              # Her ağaç için max derinlik
-    min_samples_split=100,
-    min_samples_leaf=50,
+    max_depth=4,              # Her ağaç için max derinlik
+    min_samples_split=200,
+    min_samples_leaf=100,
     criterion='gini',
     class_weight='balanced',
+    n_jobs=-1,                # Paralel işleme
+    max_features='sqrt'       # Rastgele feature seçimi
     n_jobs=-1                 # Paralel işleme
 )
 ```
@@ -206,9 +220,13 @@ RandomForestClassifier(
 ```
 employee-attrition/
 ├── aug_train.csv                      # Eğitim verisi
-├── aug_test.csv                       # Test verisi
-├── sample_submission.csv              # Submission şablonu
-├── decision_tree_model.py             # Decision Tree modeli
+├── random_forest_model.py             # Random Forest modeli
+├── compare_models.py                  # Model karşılaştırması
+├── decision_tree_analysis.png         # DT analiz grafikleri
+├── decision_tree_full.png             # Tam ağaç yapısı
+├── random_forest_analysis.png         # RF analiz grafikleri
+├── random_forest_single_tree.png      # RF tek ağaç örneği
+├── random_forest_tree_stats.png       # RF ağaç istatistikleriodeli
 ├── compare_models.py                  # Model karşılaştırması
 ├── decision_tree_analysis.png         # DT analiz grafikleri
 ├── decision_tree_full.png             # Tam ağaç yapısı
