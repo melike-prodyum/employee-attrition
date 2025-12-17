@@ -38,9 +38,9 @@ print("\n[1] Veri Yükleme ve Keşif Analizi")
 print("-"*70)
 
 # Veri setlerini yükle
-train_df = pd.read_csv('aug_train.csv')
-test_df = pd.read_csv('aug_test.csv')
-submission = pd.read_csv('sample_submission.csv')
+train_df = pd.read_csv('../data/aug_train.csv')
+test_df = pd.read_csv('../data/aug_test.csv')
+submission = pd.read_csv('../data/sample_submission.csv')
 
 print(f"✓ Train veri seti boyutu: {train_df.shape}")
 print(f"✓ Test veri seti boyutu: {test_df.shape}")
@@ -226,7 +226,11 @@ for idx, row in feature_importance.head(10).iterrows():
 print("\n[5] Görselleştirmeler Oluşturuluyor...")
 print("-"*70)
 
-# Figure oluştur
+# outputs klasörünü oluştur
+import os
+os.makedirs('../outputs', exist_ok=True)
+
+# Figure oluştur - Birleşik görsel
 fig = plt.figure(figsize=(20, 12))
 
 # 1. Confusion Matrix
@@ -305,11 +309,115 @@ plot_tree(dt_model,
 plt.title('Decision Tree Yapısı (İlk 2 Seviye)', fontsize=14, fontweight='bold')
 
 plt.tight_layout()
-plt.savefig('decision_tree_analysis.png', dpi=300, bbox_inches='tight')
-print("✓ Grafik kaydedildi: decision_tree_analysis.png")
+plt.savefig('../outputs/decision_tree_analysis.png', dpi=300, bbox_inches='tight')
+print("✓ Birleşik grafik kaydedildi: outputs/decision_tree_analysis.png")
+
+# ============================================================================
+# AYRI AYRI GRAFİKLER
+# ============================================================================
+print("\n📊 Grafikleri ayrı ayrı kaydediyorum...")
+
+# 1. Confusion Matrix - Ayrı
+fig1 = plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False,
+            xticklabels=['Not Leave', 'Leave'],
+            yticklabels=['Not Leave', 'Leave'])
+plt.title('Confusion Matrix (Validation)', fontsize=14, fontweight='bold')
+plt.ylabel('Gerçek Değer')
+plt.xlabel('Tahmin')
+plt.tight_layout()
+plt.savefig('../outputs/dt_confusion_matrix.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("  ✓ Confusion Matrix kaydedildi")
+
+# 2. Feature Importance - Ayrı
+fig2 = plt.figure(figsize=(10, 8))
+top_features = feature_importance.head(10)
+plt.barh(range(len(top_features)), top_features['Importance'])
+plt.yticks(range(len(top_features)), top_features['Feature'])
+plt.xlabel('Importance')
+plt.title('Top 10 Önemli Özellikler', fontsize=14, fontweight='bold')
+plt.gca().invert_yaxis()
+plt.tight_layout()
+plt.savefig('../outputs/dt_feature_importance.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("  ✓ Feature Importance kaydedildi")
+
+# 3. ROC Curve - Ayrı
+fig3 = plt.figure(figsize=(8, 6))
+fpr, tpr, _ = roc_curve(y_val_split, y_val_proba)
+plt.plot(fpr, tpr, linewidth=2, label=f'ROC (AUC = {roc_auc_score(y_val_split, y_val_proba):.4f})')
+plt.plot([0, 1], [0, 1], 'k--', linewidth=1, label='Random')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve', fontsize=14, fontweight='bold')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.savefig('../outputs/dt_roc_curve.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("  ✓ ROC Curve kaydedildi")
+
+# 4. Target Distribution - Ayrı
+fig4 = plt.figure(figsize=(8, 6))
+target_counts = y.value_counts()
+plt.bar(['Not Leave (0)', 'Leave (1)'], target_counts.values, color=['#3498db', '#e74c3c'])
+plt.title('Target Dağılımı (Train)', fontsize=14, fontweight='bold')
+plt.ylabel('Sayı')
+for i, v in enumerate(target_counts.values):
+    plt.text(i, v + 50, str(v), ha='center', fontweight='bold')
+plt.tight_layout()
+plt.savefig('../outputs/dt_target_distribution.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("  ✓ Target Distribution kaydedildi")
+
+# 5. Performance Metrics - Ayrı
+fig5 = plt.figure(figsize=(10, 6))
+metrics_train = [
+    accuracy_score(y_train_split, y_train_pred),
+    precision_score(y_train_split, y_train_pred),
+    recall_score(y_train_split, y_train_pred),
+    f1_score(y_train_split, y_train_pred)
+]
+metrics_val = [
+    accuracy_score(y_val_split, y_val_pred),
+    precision_score(y_val_split, y_val_pred),
+    recall_score(y_val_split, y_val_pred),
+    f1_score(y_val_split, y_val_pred)
+]
+x = np.arange(4)
+width = 0.35
+plt.bar(x - width/2, metrics_train, width, label='Train', color='#2ecc71')
+plt.bar(x + width/2, metrics_val, width, label='Validation', color='#3498db')
+plt.xlabel('Metrikler')
+plt.ylabel('Skor')
+plt.title('Model Performansı Karşılaştırması', fontsize=14, fontweight='bold')
+plt.xticks(x, ['Accuracy', 'Precision', 'Recall', 'F1-Score'], rotation=45)
+plt.legend()
+plt.ylim([0, 1])
+plt.grid(True, alpha=0.3, axis='y')
+plt.tight_layout()
+plt.savefig('../outputs/dt_performance_metrics.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("  ✓ Performance Metrics kaydedildi")
+
+# 6. Tree Structure (simplified) - Ayrı
+fig6 = plt.figure(figsize=(15, 10))
+plot_tree(dt_model, 
+          max_depth=2,
+          filled=True, 
+          feature_names=X_train.columns,
+          class_names=['Not Leave', 'Leave'],
+          fontsize=10,
+          rounded=True)
+plt.title('Decision Tree Yapısı (İlk 2 Seviye)', fontsize=14, fontweight='bold')
+plt.tight_layout()
+plt.savefig('../outputs/dt_tree_structure_simple.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("  ✓ Tree Structure (simplified) kaydedildi")
 
 # Daha detaylı ağaç görselleştirmesi
-fig2 = plt.figure(figsize=(25, 15))
+fig7 = plt.figure(figsize=(25, 15))
 plot_tree(dt_model, 
           filled=True, 
           feature_names=X_train.columns,
@@ -318,8 +426,11 @@ plot_tree(dt_model,
           rounded=True,
           proportion=True)
 plt.title('Decision Tree - Tam Yapı', fontsize=16, fontweight='bold', pad=20)
-plt.savefig('decision_tree_full.png', dpi=300, bbox_inches='tight')
-print("✓ Tam ağaç görselleştirmesi kaydedildi: decision_tree_full.png")
+plt.savefig('../outputs/decision_tree_full.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("  ✓ Tam ağaç görselleştirmesi kaydedildi")
+
+print("\n✓ Tüm grafikler hem birleşik hem de ayrı ayrı kaydedildi!")
 
 # ============================================================================
 # 6. TEST VERİSİ İÇİN TAHMİNLER
@@ -344,9 +455,10 @@ print("✓ Final model eğitimi tamamlandı!")
 test_predictions = final_model.predict_proba(X_test)[:, 1]
 
 # Submission dosyasını hazırla
+os.makedirs('../submissions', exist_ok=True)
 submission['target'] = test_predictions
-submission.to_csv('submission_decision_tree.csv', index=False)
-print(f"✓ Submission dosyası oluşturuldu: submission_decision_tree.csv")
+submission.to_csv('../submissions/submission_decision_tree.csv', index=False)
+print(f"✓ Submission dosyası oluşturuldu: submissions/submission_decision_tree.csv")
 print(f"✓ Tahmin edilen test örnekleri: {len(test_predictions)}")
 print(f"\nTahmin İstatistikleri:")
 print(f"  • Ortalama: {test_predictions.mean():.4f}")
@@ -366,9 +478,18 @@ print(f"✓ Yaprak Sayısı: {final_model.get_n_leaves()}")
 print(f"✓ Validation Accuracy: {accuracy_score(y_val_split, y_val_pred):.4f}")
 print(f"✓ Validation ROC-AUC: {roc_auc_score(y_val_split, y_val_proba):.4f}")
 print(f"\n📁 Oluşturulan Dosyalar:")
-print(f"  • decision_tree_analysis.png - Genel analiz grafikleri")
-print(f"  • decision_tree_full.png - Tam ağaç yapısı")
-print(f"  • submission_decision_tree.csv - Test tahminleri")
+print(f"  Birleşik Görsel:")
+print(f"    • outputs/decision_tree_analysis.png - Genel analiz grafikleri")
+print(f"  Ayrı Görseller:")
+print(f"    • outputs/dt_confusion_matrix.png")
+print(f"    • outputs/dt_feature_importance.png")
+print(f"    • outputs/dt_roc_curve.png")
+print(f"    • outputs/dt_target_distribution.png")
+print(f"    • outputs/dt_performance_metrics.png")
+print(f"    • outputs/dt_tree_structure_simple.png")
+print(f"    • outputs/decision_tree_full.png")
+print(f"  Submission:")
+print(f"    • submissions/submission_decision_tree.csv")
 
 print("\n" + "="*70)
 print("✅ İŞLEM TAMAMLANDI!")

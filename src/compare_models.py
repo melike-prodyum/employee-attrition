@@ -222,6 +222,11 @@ for short_name, display_name in metric_map.items():
 print("\n[5] Karşılaştırma Grafikleri")
 print("-"*70)
 
+# outputs klasörünü oluştur
+import os
+os.makedirs('outputs', exist_ok=True)
+
+# Birleşik görsel
 fig = plt.figure(figsize=(18, 12))
 
 # 1. Metrics Comparison
@@ -311,8 +316,127 @@ plt.legend()
 plt.grid(True, alpha=0.3, axis='y')
 
 plt.tight_layout()
-plt.savefig('model_comparison.png', dpi=300, bbox_inches='tight')
-print("✓ Karşılaştırma grafiği kaydedildi: model_comparison.png")
+plt.savefig('outputs/model_comparison.png', dpi=300, bbox_inches='tight')
+print("✓ Birleşik karşılaştırma grafiği kaydedildi: outputs/model_comparison.png")
+
+# ============================================================================
+# AYRI AYRI GRAFİKLER
+# ============================================================================
+print("\n📊 Grafikleri ayrı ayrı kaydediyorum...")
+
+# 1. Metrics Comparison - Ayrı
+fig1 = plt.figure(figsize=(10, 6))
+metrics = ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC-AUC']
+dt_vals = [dt_metrics['Val Accuracy'], dt_metrics['Val Precision'], 
+           dt_metrics['Val Recall'], dt_metrics['Val F1'], dt_metrics['Val ROC-AUC']]
+rf_vals = [rf_metrics['Val Accuracy'], rf_metrics['Val Precision'], 
+           rf_metrics['Val Recall'], rf_metrics['Val F1'], rf_metrics['Val ROC-AUC']]
+x = np.arange(len(metrics))
+width = 0.35
+plt.bar(x - width/2, dt_vals, width, label='Decision Tree', color='#e74c3c', alpha=0.8)
+plt.bar(x + width/2, rf_vals, width, label='Random Forest', color='#2ecc71', alpha=0.8)
+plt.xlabel('Metrikler', fontweight='bold')
+plt.ylabel('Skor', fontweight='bold')
+plt.title('Model Performansı Karşılaştırması (Validation)', fontsize=14, fontweight='bold')
+plt.xticks(x, metrics, rotation=45, ha='right')
+plt.legend()
+plt.ylim([0, 1])
+plt.grid(True, alpha=0.3, axis='y')
+plt.tight_layout()
+plt.savefig('outputs/compare_metrics.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("  ✓ Metrics Comparison kaydedildi")
+
+# 2. ROC Curves - Ayrı
+fig2 = plt.figure(figsize=(8, 6))
+dt_fpr, dt_tpr, _ = roc_curve(y_val_split, dt_val_proba)
+rf_fpr, rf_tpr, _ = roc_curve(y_val_split, rf_val_proba)
+plt.plot(dt_fpr, dt_tpr, linewidth=2, label=f'Decision Tree (AUC={dt_metrics["Val ROC-AUC"]:.4f})', color='#e74c3c')
+plt.plot(rf_fpr, rf_tpr, linewidth=2, label=f'Random Forest (AUC={rf_metrics["Val ROC-AUC"]:.4f})', color='#2ecc71')
+plt.plot([0, 1], [0, 1], 'k--', linewidth=1, label='Random')
+plt.xlabel('False Positive Rate', fontweight='bold')
+plt.ylabel('True Positive Rate', fontweight='bold')
+plt.title('ROC Curve Karşılaştırması', fontsize=14, fontweight='bold')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.savefig('outputs/compare_roc_curves.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("  ✓ ROC Curves kaydedildi")
+
+# 3. Decision Tree Confusion Matrix - Ayrı
+fig3 = plt.figure(figsize=(8, 6))
+dt_cm = confusion_matrix(y_val_split, dt_val_pred)
+sns.heatmap(dt_cm, annot=True, fmt='d', cmap='Reds', cbar=False, alpha=0.8,
+            xticklabels=['Not Leave', 'Leave'],
+            yticklabels=['Not Leave', 'Leave'])
+plt.title('Decision Tree - Confusion Matrix', fontsize=14, fontweight='bold')
+plt.ylabel('Gerçek Değer')
+plt.xlabel('Tahmin')
+plt.tight_layout()
+plt.savefig('outputs/compare_dt_confusion_matrix.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("  ✓ Decision Tree Confusion Matrix kaydedildi")
+
+# 4. Random Forest Confusion Matrix - Ayrı
+fig4 = plt.figure(figsize=(8, 6))
+rf_cm = confusion_matrix(y_val_split, rf_val_pred)
+sns.heatmap(rf_cm, annot=True, fmt='d', cmap='Greens', cbar=False, alpha=0.8,
+            xticklabels=['Not Leave', 'Leave'],
+            yticklabels=['Not Leave', 'Leave'])
+plt.title('Random Forest - Confusion Matrix', fontsize=14, fontweight='bold')
+plt.ylabel('Gerçek Değer')
+plt.xlabel('Tahmin')
+plt.tight_layout()
+plt.savefig('outputs/compare_rf_confusion_matrix.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("  ✓ Random Forest Confusion Matrix kaydedildi")
+
+# 5. Feature Importance - Ayrı
+fig5 = plt.figure(figsize=(10, 8))
+dt_importance = pd.DataFrame({
+    'Feature': X_train.columns,
+    'DT_Importance': dt_model.feature_importances_,
+    'RF_Importance': rf_model.feature_importances_
+}).sort_values('RF_Importance', ascending=False).head(8)
+x = np.arange(len(dt_importance))
+width = 0.35
+plt.barh(x - width/2, dt_importance['DT_Importance'], width, label='Decision Tree', color='#e74c3c', alpha=0.8)
+plt.barh(x + width/2, dt_importance['RF_Importance'], width, label='Random Forest', color='#2ecc71', alpha=0.8)
+plt.yticks(x, dt_importance['Feature'])
+plt.xlabel('Importance', fontweight='bold')
+plt.title('Top 8 Feature Importance Karşılaştırması', fontsize=14, fontweight='bold')
+plt.legend()
+plt.gca().invert_yaxis()
+plt.tight_layout()
+plt.savefig('outputs/compare_feature_importance.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("  ✓ Feature Importance kaydedildi")
+
+# 6. Overfitting Analysis - Ayrı
+fig6 = plt.figure(figsize=(10, 6))
+models = ['Decision Tree', 'Random Forest']
+train_scores = [dt_metrics['Train Accuracy'], rf_metrics['Train Accuracy']]
+val_scores = [dt_metrics['Val Accuracy'], rf_metrics['Val Accuracy']]
+overfit = [train_scores[0] - val_scores[0], train_scores[1] - val_scores[1]]
+x = np.arange(len(models))
+width = 0.25
+plt.bar(x - width, train_scores, width, label='Train', color='#3498db')
+plt.bar(x, val_scores, width, label='Validation', color='#f39c12')
+plt.bar(x + width, overfit, width, label='Overfitting Gap', color='#95a5a6')
+plt.xlabel('Model', fontweight='bold')
+plt.ylabel('Accuracy', fontweight='bold')
+plt.title('Overfitting Analizi', fontsize=14, fontweight='bold')
+plt.xticks(x, models)
+plt.legend()
+plt.grid(True, alpha=0.3, axis='y')
+plt.tight_layout()
+plt.savefig('outputs/compare_overfitting.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("  ✓ Overfitting Analysis kaydedildi")
+
+print("\n✓ Tüm grafikler hem birleşik hem de ayrı ayrı kaydedildi!")
+
 
 # ============================================================================
 # 6. RANDOM FOREST İLE TEST TAHMİNLERİ
@@ -342,8 +466,8 @@ rf_test_predictions = final_rf.predict_proba(X_test)[:, 1]
 # Submission dosyası
 submission = pd.read_csv('sample_submission.csv')
 submission['target'] = rf_test_predictions
-submission.to_csv('submission_random_forest.csv', index=False)
-print(f"✓ Random Forest submission dosyası: submission_random_forest.csv")
+submission.to_csv('submissions/submission_random_forest.csv', index=False)
+print(f"✓ Random Forest submission dosyası: submissions/submission_random_forest.csv")
 
 # ============================================================================
 # ÖZET
@@ -379,8 +503,17 @@ print("  5. Random Forest genellikle daha yüksek doğruluk sağlar")
 print("  6. Decision Tree daha yorumlanabilir")
 
 print("\n📁 Oluşturulan Dosyalar:")
-print("  • model_comparison.png - Model karşılaştırma grafikleri")
-print("  • submission_random_forest.csv - Random Forest tahminleri")
+print("  Birleşik Görsel:")
+print("    • outputs/model_comparison.png - Model karşılaştırma grafikleri")
+print("  Ayrı Görseller:")
+print("    • outputs/compare_metrics.png")
+print("    • outputs/compare_roc_curves.png")
+print("    • outputs/compare_dt_confusion_matrix.png")
+print("    • outputs/compare_rf_confusion_matrix.png")
+print("    • outputs/compare_feature_importance.png")
+print("    • outputs/compare_overfitting.png")
+print("  Submission:")
+print("    • submissions/submission_random_forest.csv")
 
 print("\n" + "="*70)
 print("✅ KARŞILAŞTIRMA TAMAMLANDI!")
