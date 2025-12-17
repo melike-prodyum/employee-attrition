@@ -318,13 +318,13 @@ plt.grid(True, alpha=0.3, axis='y')
 # 6. Decision Tree yapısını göster (basitleştirilmiş)
 ax6 = plt.subplot(2, 3, 6)
 plot_tree(dt_model, 
-          max_depth=2,  # Görselleştirme için sadece ilk 2 seviye
+          max_depth=3,  # Görselleştirme için ilk 3 seviye
           filled=True, 
           feature_names=X_train.columns,
           class_names=['Not Leave', 'Leave'],
-          fontsize=8,
+          fontsize=7,
           rounded=True)
-plt.title('Decision Tree Yapısı (İlk 2 Seviye)', fontsize=14, fontweight='bold')
+plt.title('Decision Tree Yapısı (İlk 3 Seviye)', fontsize=14, fontweight='bold')
 
 plt.tight_layout()
 plt.savefig('outputs/decision_tree_analysis.png', dpi=300, bbox_inches='tight')
@@ -420,15 +420,15 @@ plt.close()
 print("  ✓ Performance Metrics kaydedildi")
 
 # 6. Tree Structure (simplified) - Ayrı
-fig6 = plt.figure(figsize=(15, 10))
+fig6 = plt.figure(figsize=(20, 12))
 plot_tree(dt_model, 
-          max_depth=2,
+          max_depth=3,
           filled=True, 
           feature_names=X_train.columns,
           class_names=['Not Leave', 'Leave'],
-          fontsize=10,
+          fontsize=9,
           rounded=True)
-plt.title('Decision Tree Yapısı (İlk 2 Seviye)', fontsize=14, fontweight='bold')
+plt.title('Decision Tree Yapısı (İlk 3 Seviye)', fontsize=14, fontweight='bold')
 plt.tight_layout()
 plt.savefig('outputs/dt_tree_structure_simple.png', dpi=300, bbox_inches='tight')
 plt.close()
