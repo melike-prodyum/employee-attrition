@@ -39,9 +39,9 @@ print("\n[1] Veri Yükleme ve Keşif Analizi")
 print("-"*70)
 
 # Veri setlerini yükle
-train_df = pd.read_csv('../data/aug_train.csv')
-test_df = pd.read_csv('../data/aug_test.csv')
-submission = pd.read_csv('../data/sample_submission.csv')
+train_df = pd.read_csv('data/aug_train.csv')
+test_df = pd.read_csv('data/aug_test.csv')
+submission = pd.read_csv('data/sample_submission.csv')
 
 print(f"✓ Train veri seti boyutu: {train_df.shape}")
 print(f"✓ Test veri seti boyutu: {test_df.shape}")
@@ -255,7 +255,7 @@ plt.xlabel('Tahmin')
 # 2. Feature Importance
 ax2 = plt.subplot(3, 3, 2)
 top_features = feature_importance.head(10)
-plt.barh(range(len(top_features)), top_features['Importance'], color='#2ecc71')
+plt.barh(range(len(top_features)), top_features['Importance'], color='#27ae60', alpha=0.7)
 plt.yticks(range(len(top_features)), top_features['Feature'])
 plt.xlabel('Importance')
 plt.title('Top 10 Önemli Özellikler', fontsize=14, fontweight='bold')
@@ -264,7 +264,7 @@ plt.gca().invert_yaxis()
 # 3. ROC Curve
 ax3 = plt.subplot(3, 3, 3)
 fpr, tpr, _ = roc_curve(y_val_split, y_val_proba)
-plt.plot(fpr, tpr, linewidth=2, label=f'ROC (AUC = {roc_auc_score(y_val_split, y_val_proba):.4f})', color='#2ecc71')
+plt.plot(fpr, tpr, linewidth=2, label=f'ROC (AUC = {roc_auc_score(y_val_split, y_val_proba):.4f})', color='#27ae60')
 plt.plot([0, 1], [0, 1], 'k--', linewidth=1, label='Random')
 plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
@@ -297,8 +297,8 @@ metrics_val = [
 ]
 x = np.arange(4)
 width = 0.35
-plt.bar(x - width/2, metrics_train, width, label='Train', color='#27ae60')
-plt.bar(x + width/2, metrics_val, width, label='Validation', color='#2ecc71')
+plt.bar(x - width/2, metrics_train, width, label='Train', color='#2ecc71', alpha=0.7)
+plt.bar(x + width/2, metrics_val, width, label='Validation', color='#27ae60', alpha=0.9)
 plt.xlabel('Metrikler')
 plt.ylabel('Skor')
 plt.title('Model Performansı Karşılaştırması', fontsize=14, fontweight='bold')
@@ -321,7 +321,7 @@ for i in range(4):
     plt.title(f'Ağaç #{i+1} (İlk 2 Seviye)', fontsize=10, fontweight='bold')
 
 plt.tight_layout()
-plt.savefig('../outputs/random_forest_analysis.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/random_forest_analysis.png', dpi=300, bbox_inches='tight')
 print("✓ Birleşik grafik kaydedildi: outputs/random_forest_analysis.png")
 
 # ============================================================================
@@ -338,27 +338,27 @@ plt.title('Confusion Matrix (Validation)', fontsize=14, fontweight='bold')
 plt.ylabel('Gerçek Değer')
 plt.xlabel('Tahmin')
 plt.tight_layout()
-plt.savefig('../outputs/rf_confusion_matrix.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/rf_confusion_matrix.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Confusion Matrix kaydedildi")
 
 # 2. Feature Importance - Ayrı
 fig2 = plt.figure(figsize=(10, 8))
 top_features = feature_importance.head(10)
-plt.barh(range(len(top_features)), top_features['Importance'], color='#2ecc71')
+plt.barh(range(len(top_features)), top_features['Importance'], color='#27ae60', alpha=0.7)
 plt.yticks(range(len(top_features)), top_features['Feature'])
 plt.xlabel('Importance')
 plt.title('Top 10 Önemli Özellikler', fontsize=14, fontweight='bold')
 plt.gca().invert_yaxis()
 plt.tight_layout()
-plt.savefig('../outputs/rf_feature_importance.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/rf_feature_importance.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Feature Importance kaydedildi")
 
 # 3. ROC Curve - Ayrı
 fig3 = plt.figure(figsize=(8, 6))
 fpr, tpr, _ = roc_curve(y_val_split, y_val_proba)
-plt.plot(fpr, tpr, linewidth=2, label=f'ROC (AUC = {roc_auc_score(y_val_split, y_val_proba):.4f})', color='#2ecc71')
+plt.plot(fpr, tpr, linewidth=2, label=f'ROC (AUC = {roc_auc_score(y_val_split, y_val_proba):.4f})', color='#27ae60')
 plt.plot([0, 1], [0, 1], 'k--', linewidth=1, label='Random')
 plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
@@ -366,7 +366,7 @@ plt.title('ROC Curve', fontsize=14, fontweight='bold')
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.savefig('../outputs/rf_roc_curve.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/rf_roc_curve.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ ROC Curve kaydedildi")
 
@@ -379,7 +379,7 @@ plt.ylabel('Sayı')
 for i, v in enumerate(target_counts.values):
     plt.text(i, v + 50, str(v), ha='center', fontweight='bold')
 plt.tight_layout()
-plt.savefig('../outputs/rf_target_distribution.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/rf_target_distribution.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Target Distribution kaydedildi")
 
@@ -399,8 +399,8 @@ metrics_val = [
 ]
 x = np.arange(4)
 width = 0.35
-plt.bar(x - width/2, metrics_train, width, label='Train', color='#27ae60')
-plt.bar(x + width/2, metrics_val, width, label='Validation', color='#2ecc71')
+plt.bar(x - width/2, metrics_train, width, label='Train', color='#2ecc71', alpha=0.7)
+plt.bar(x + width/2, metrics_val, width, label='Validation', color='#27ae60', alpha=0.9)
 plt.xlabel('Metrikler')
 plt.ylabel('Skor')
 plt.title('Model Performansı Karşılaştırması', fontsize=14, fontweight='bold')
@@ -409,7 +409,7 @@ plt.legend()
 plt.ylim([0, 1])
 plt.grid(True, alpha=0.3, axis='y')
 plt.tight_layout()
-plt.savefig('../outputs/rf_performance_metrics.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/rf_performance_metrics.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Performance Metrics kaydedildi")
 
@@ -425,7 +425,7 @@ for i in range(4):
               rounded=True)
     plt.title(f'Random Forest - Ağaç #{i+1} (İlk 2 Seviye)', fontsize=14, fontweight='bold')
     plt.tight_layout()
-    plt.savefig(f'../outputs/rf_tree_{i+1}.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'outputs/rf_tree_{i+1}.png', dpi=300, bbox_inches='tight')
     plt.close()
 print(f"  ✓ İlk 4 ağaç ayrı ayrı kaydedildi")
 
@@ -440,7 +440,7 @@ plot_tree(rf_model.estimators_[0],
           rounded=True,
           proportion=True)
 plt.title('Random Forest - İlk Ağaç (Tam Yapı)', fontsize=16, fontweight='bold', pad=20)
-plt.savefig('../outputs/random_forest_single_tree.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/random_forest_single_tree.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Tek ağaç görselleştirmesi kaydedildi")
 
@@ -451,7 +451,7 @@ fig_stats = plt.figure(figsize=(12, 6))
 ax1 = plt.subplot(1, 2, 1)
 all_depths = [tree.get_depth() for tree in rf_model.estimators_]
 plt.hist(all_depths, bins=range(min(all_depths), max(all_depths) + 2), 
-         color='#2ecc71', alpha=0.7, edgecolor='black')
+         color='#27ae60', alpha=0.7, edgecolor='black')
 plt.xlabel('Ağaç Derinliği', fontweight='bold')
 plt.ylabel('Ağaç Sayısı', fontweight='bold')
 plt.title('100 Ağacın Derinlik Dağılımı', fontsize=14, fontweight='bold')
@@ -463,7 +463,7 @@ plt.grid(True, alpha=0.3)
 # Sağ: Yaprak sayıları
 ax2 = plt.subplot(1, 2, 2)
 all_leaves = [tree.get_n_leaves() for tree in rf_model.estimators_]
-plt.hist(all_leaves, bins=20, color='#27ae60', alpha=0.7, edgecolor='black')
+plt.hist(all_leaves, bins=20, color='#2ecc71', alpha=0.7, edgecolor='black')
 plt.xlabel('Yaprak Sayısı', fontweight='bold')
 plt.ylabel('Ağaç Sayısı', fontweight='bold')
 plt.title('100 Ağacın Yaprak Sayısı Dağılımı', fontsize=14, fontweight='bold')
@@ -473,7 +473,7 @@ plt.legend()
 plt.grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig('../outputs/random_forest_tree_stats.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/random_forest_tree_stats.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Ağaç istatistikleri kaydedildi")
 
@@ -508,7 +508,7 @@ test_predictions = final_model.predict_proba(X_test)[:, 1]
 # Submission dosyasını hazırla
 os.makedirs('../submissions', exist_ok=True)
 submission['target'] = test_predictions
-submission.to_csv('../submissions/submission_random_forest.csv', index=False)
+submission.to_csv('submissions/submission_random_forest.csv', index=False)
 print(f"✓ Submission dosyası oluşturuldu: submissions/submission_random_forest.csv")
 print(f"✓ Tahmin edilen test örnekleri: {len(test_predictions)}")
 print(f"\nTahmin İstatistikleri:")

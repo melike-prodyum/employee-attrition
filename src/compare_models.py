@@ -36,8 +36,8 @@ print("="*70)
 print("\n[1] Veri Yükleme ve Ön İşleme")
 print("-"*70)
 
-train_df = pd.read_csv('../data/aug_train.csv')
-test_df = pd.read_csv('../data/aug_test.csv')
+train_df = pd.read_csv('data/aug_train.csv')
+test_df = pd.read_csv('data/aug_test.csv')
 
 y = train_df['target']
 X_train = train_df.drop(['enrollee_id', 'target'], axis=1)
@@ -316,7 +316,7 @@ plt.legend()
 plt.grid(True, alpha=0.3, axis='y')
 
 plt.tight_layout()
-plt.savefig('../outputs/model_comparison.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/model_comparison.png', dpi=300, bbox_inches='tight')
 print("✓ Birleşik karşılaştırma grafiği kaydedildi: outputs/model_comparison.png")
 
 # ============================================================================
@@ -333,8 +333,8 @@ rf_vals = [rf_metrics['Val Accuracy'], rf_metrics['Val Precision'],
            rf_metrics['Val Recall'], rf_metrics['Val F1'], rf_metrics['Val ROC-AUC']]
 x = np.arange(len(metrics))
 width = 0.35
-plt.bar(x - width/2, dt_vals, width, label='Decision Tree', color='#e74c3c', alpha=0.8)
-plt.bar(x + width/2, rf_vals, width, label='Random Forest', color='#2ecc71', alpha=0.8)
+plt.bar(x - width/2, dt_vals, width, label='Decision Tree', color='#c0392b', alpha=0.8)
+plt.bar(x + width/2, rf_vals, width, label='Random Forest', color='#27ae60', alpha=0.8)
 plt.xlabel('Metrikler', fontweight='bold')
 plt.ylabel('Skor', fontweight='bold')
 plt.title('Model Performansı Karşılaştırması (Validation)', fontsize=14, fontweight='bold')
@@ -343,7 +343,7 @@ plt.legend()
 plt.ylim([0, 1])
 plt.grid(True, alpha=0.3, axis='y')
 plt.tight_layout()
-plt.savefig('../outputs/compare_metrics.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/compare_metrics.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Metrics Comparison kaydedildi")
 
@@ -351,8 +351,8 @@ print("  ✓ Metrics Comparison kaydedildi")
 fig2 = plt.figure(figsize=(8, 6))
 dt_fpr, dt_tpr, _ = roc_curve(y_val_split, dt_val_proba)
 rf_fpr, rf_tpr, _ = roc_curve(y_val_split, rf_val_proba)
-plt.plot(dt_fpr, dt_tpr, linewidth=2, label=f'Decision Tree (AUC={dt_metrics["Val ROC-AUC"]:.4f})', color='#e74c3c')
-plt.plot(rf_fpr, rf_tpr, linewidth=2, label=f'Random Forest (AUC={rf_metrics["Val ROC-AUC"]:.4f})', color='#2ecc71')
+plt.plot(dt_fpr, dt_tpr, linewidth=2, label=f'Decision Tree (AUC={dt_metrics["Val ROC-AUC"]:.4f})', color='#c0392b')
+plt.plot(rf_fpr, rf_tpr, linewidth=2, label=f'Random Forest (AUC={rf_metrics["Val ROC-AUC"]:.4f})', color='#27ae60')
 plt.plot([0, 1], [0, 1], 'k--', linewidth=1, label='Random')
 plt.xlabel('False Positive Rate', fontweight='bold')
 plt.ylabel('True Positive Rate', fontweight='bold')
@@ -360,7 +360,7 @@ plt.title('ROC Curve Karşılaştırması', fontsize=14, fontweight='bold')
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.savefig('../outputs/compare_roc_curves.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/compare_roc_curves.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ ROC Curves kaydedildi")
 
@@ -374,7 +374,7 @@ plt.title('Decision Tree - Confusion Matrix', fontsize=14, fontweight='bold')
 plt.ylabel('Gerçek Değer')
 plt.xlabel('Tahmin')
 plt.tight_layout()
-plt.savefig('../outputs/compare_dt_confusion_matrix.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/compare_dt_confusion_matrix.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Decision Tree Confusion Matrix kaydedildi")
 
@@ -388,7 +388,7 @@ plt.title('Random Forest - Confusion Matrix', fontsize=14, fontweight='bold')
 plt.ylabel('Gerçek Değer')
 plt.xlabel('Tahmin')
 plt.tight_layout()
-plt.savefig('../outputs/compare_rf_confusion_matrix.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/compare_rf_confusion_matrix.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Random Forest Confusion Matrix kaydedildi")
 
@@ -409,7 +409,7 @@ plt.title('Top 8 Feature Importance Karşılaştırması', fontsize=14, fontweig
 plt.legend()
 plt.gca().invert_yaxis()
 plt.tight_layout()
-plt.savefig('../outputs/compare_feature_importance.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/compare_feature_importance.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Feature Importance kaydedildi")
 
@@ -431,7 +431,7 @@ plt.xticks(x, models)
 plt.legend()
 plt.grid(True, alpha=0.3, axis='y')
 plt.tight_layout()
-plt.savefig('../outputs/compare_overfitting.png', dpi=300, bbox_inches='tight')
+plt.savefig('outputs/compare_overfitting.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Overfitting Analysis kaydedildi")
 
@@ -464,10 +464,10 @@ print("✓ Eğitim tamamlandı!")
 rf_test_predictions = final_rf.predict_proba(X_test)[:, 1]
 
 # Submission dosyası
-submission = pd.read_csv('../data/sample_submission.csv')
+submission = pd.read_csv('data/sample_submission.csv')
 submission['target'] = rf_test_predictions
-os.makedirs('../submissions', exist_ok=True)
-submission.to_csv('../submissions/submission_random_forest.csv', index=False)
+os.makedirs('submissions', exist_ok=True)
+submission.to_csv('submissions/submission_random_forest.csv', index=False)
 print(f"✓ Random Forest submission dosyası: submissions/submission_random_forest.csv")
 
 # ============================================================================
