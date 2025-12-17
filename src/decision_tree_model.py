@@ -263,10 +263,14 @@ plt.xlabel('Tahmin')
 # 2. Feature Importance
 ax2 = plt.subplot(2, 3, 2)
 top_features = feature_importance.head(10)
-plt.barh(range(len(top_features)), top_features['Importance'], color='#c0392b', alpha=0.7)
+bars = plt.barh(range(len(top_features)), top_features['Importance'], color='#c0392b', alpha=0.7)
 plt.yticks(range(len(top_features)), top_features['Feature'])
 plt.xlabel('Importance')
 plt.title('Top 10 Önemli Özellikler', fontsize=14, fontweight='bold')
+# Değerleri çubukların üzerine ekle
+for i, (idx, row) in enumerate(top_features.iterrows()):
+    plt.text(row['Importance'], i, f' {row["Importance"]:.4f}', 
+             va='center', fontsize=9, fontweight='bold')
 plt.gca().invert_yaxis()
 
 # 3. ROC Curve
@@ -305,14 +309,18 @@ metrics_val = [
 ]
 x = np.arange(4)
 width = 0.35
-plt.bar(x - width/2, metrics_train, width, label='Train', color='#e74c3c', alpha=0.7)
-plt.bar(x + width/2, metrics_val, width, label='Validation', color='#c0392b', alpha=0.9)
+bars1 = plt.bar(x - width/2, metrics_train, width, label='Train', color='#e74c3c', alpha=0.7)
+bars2 = plt.bar(x + width/2, metrics_val, width, label='Validation', color='#c0392b', alpha=0.9)
+# Değerleri çubukların üzerine ekle
+for i, (v1, v2) in enumerate(zip(metrics_train, metrics_val)):
+    plt.text(i - width/2, v1 + 0.02, f'{v1:.3f}', ha='center', va='bottom', fontsize=8, fontweight='bold')
+    plt.text(i + width/2, v2 + 0.02, f'{v2:.3f}', ha='center', va='bottom', fontsize=8, fontweight='bold')
 plt.xlabel('Metrikler')
 plt.ylabel('Skor')
 plt.title('Model Performansı Karşılaştırması', fontsize=14, fontweight='bold')
 plt.xticks(x, ['Accuracy', 'Precision', 'Recall', 'F1-Score'], rotation=45)
 plt.legend()
-plt.ylim([0, 1])
+plt.ylim([0, 1.1])
 plt.grid(True, alpha=0.3, axis='y')
 
 # 6. Decision Tree yapısını göster (basitleştirilmiş)
@@ -351,10 +359,14 @@ print("  ✓ Confusion Matrix kaydedildi")
 # 2. Feature Importance - Ayrı
 fig2 = plt.figure(figsize=(10, 8))
 top_features = feature_importance.head(10)
-plt.barh(range(len(top_features)), top_features['Importance'], color='#c0392b', alpha=0.7)
+bars = plt.barh(range(len(top_features)), top_features['Importance'], color='#c0392b', alpha=0.7)
 plt.yticks(range(len(top_features)), top_features['Feature'])
 plt.xlabel('Importance')
 plt.title('Top 10 Önemli Özellikler', fontsize=14, fontweight='bold')
+# Değerleri çubukların üzerine ekle
+for i, (idx, row) in enumerate(top_features.iterrows()):
+    plt.text(row['Importance'], i, f' {row["Importance"]:.4f}', 
+             va='center', fontsize=10, fontweight='bold')
 plt.gca().invert_yaxis()
 plt.tight_layout()
 plt.savefig('outputs/dt_feature_importance.png', dpi=300, bbox_inches='tight')
@@ -405,14 +417,18 @@ metrics_val = [
 ]
 x = np.arange(4)
 width = 0.35
-plt.bar(x - width/2, metrics_train, width, label='Train', color='#e74c3c', alpha=0.7)
-plt.bar(x + width/2, metrics_val, width, label='Validation', color='#c0392b', alpha=0.9)
+bars1 = plt.bar(x - width/2, metrics_train, width, label='Train', color='#e74c3c', alpha=0.7)
+bars2 = plt.bar(x + width/2, metrics_val, width, label='Validation', color='#c0392b', alpha=0.9)
+# Değerleri çubukların üzerine ekle
+for i, (v1, v2) in enumerate(zip(metrics_train, metrics_val)):
+    plt.text(i - width/2, v1 + 0.02, f'{v1:.3f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
+    plt.text(i + width/2, v2 + 0.02, f'{v2:.3f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
 plt.xlabel('Metrikler')
 plt.ylabel('Skor')
 plt.title('Model Performansı Karşılaştırması', fontsize=14, fontweight='bold')
 plt.xticks(x, ['Accuracy', 'Precision', 'Recall', 'F1-Score'], rotation=45)
 plt.legend()
-plt.ylim([0, 1])
+plt.ylim([0, 1.1])
 plt.grid(True, alpha=0.3, axis='y')
 plt.tight_layout()
 plt.savefig('outputs/dt_performance_metrics.png', dpi=300, bbox_inches='tight')
