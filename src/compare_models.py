@@ -8,8 +8,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import (
     accuracy_score, 
@@ -22,6 +20,14 @@ from sklearn.metrics import (
 )
 import warnings
 warnings.filterwarnings('ignore')
+
+# Model builder fonksiyonlarını import et
+from model_builders import (
+    build_decision_tree,
+    build_random_forest,
+    get_decision_tree_params,
+    get_random_forest_params
+)
 
 plt.style.use('seaborn-v0_8-darkgrid')
 sns.set_palette("husl")
@@ -61,12 +67,30 @@ for col in categorical_cols:
         X_test[col].fillna(mode_val, inplace=True)
 
 # Kategorik değişkenleri encode et
-for col in categorical_cols:
-    le = LabelEncoder()
-    combined = pd.concat([X_train[col], X_test[col]], axis=0)
-    le.fit(combined)
-    X_train[col] = le.transform(X_train[col])
-    X_test[col] = le.transform(X_test[col])
+# Decision Tree için One-Hot Encoding (decision_tree_model.py ile aynı)
+# Random Forest için Label Encoding (random_forest_model.py ile aynı)
+# Karşılaştırma için One-Hot Encoding kullanacağız (daha iyi sonuçlar için)
+print("\n🔧 Kategorik değişkenleri One-Hot Encoding ile encode etme:")
+
+if categorical_cols:
+    # One-Hot Encoding uygula
+    X_train_encoded = pd.get_dummies(X_train, columns=categorical_cols, drop_first=False)
+    X_test_encoded = pd.get_dummies(X_test, columns=categorical_cols, drop_first=False)
+    
+    # Train ve test'te aynı sütunların olmasını sağla
+    missing_cols = set(X_train_encoded.columns) - set(X_test_encoded.columns)
+    for col in missing_cols:
+        X_test_encoded[col] = 0
+    
+    extra_cols = set(X_test_encoded.columns) - set(X_train_encoded.columns)
+    X_test_encoded = X_test_encoded.drop(columns=extra_cols)
+    
+    X_test_encoded = X_test_encoded[X_train_encoded.columns]
+    
+    X_train = X_train_encoded
+    X_test = X_test_encoded
+    
+    print(f"  ✓ One-Hot Encoding tamamlandı - {X_train.shape[1]} feature")
 
 # Train-validation split
 X_train_split, X_val_split, y_train_split, y_val_split = train_test_split(
@@ -81,22 +105,17 @@ print(f"✓ Veri hazır - Train: {X_train_split.shape}, Validation: {X_val_split
 print("\n[2] Decision Tree Modeli")
 print("-"*70)
 
+# Model ve parametreleri decision_tree_model.py'den al
+dt_params = get_decision_tree_params()
 print("🌳 Decision Tree parametreleri:")
-print("  - max_depth: 5 (ağacın maksimum derinliği)")
-print("  - min_samples_split: 100 (dallanma için minimum örnek sayısı)")
-print("  - min_samples_leaf: 50 (yaprak düğümdeki minimum örnek sayısı)")
-print("  - criterion: gini (bölünme kriteri)")
-print("  - random_state: 42")
-print("  - class_weight: balanced (dengesiz veri için)")
+print(f"  - max_depth: {dt_params['max_depth']} (ağacın maksimum derinliği)")
+print(f"  - min_samples_split: {dt_params['min_samples_split']} (dallanma için minimum örnek sayısı)")
+print(f"  - min_samples_leaf: {dt_params['min_samples_leaf']} (yaprak düğümdeki minimum örnek sayısı)")
+print(f"  - criterion: {dt_params['criterion']} (bölünme kriteri)")
+print(f"  - random_state: {dt_params['random_state']}")
+print(f"  - class_weight: {dt_params['class_weight']} (dengesiz veri için)")
 
-dt_model = DecisionTreeClassifier(
-    max_depth=5,
-    min_samples_split=100,
-    min_samples_leaf=50,
-    criterion='gini',
-    random_state=42,
-    class_weight='balanced'
-)
+dt_model = build_decision_tree()
 
 print("⏳ Decision Tree eğitiliyor...")
 dt_model.fit(X_train_split, y_train_split)
@@ -137,30 +156,22 @@ print(f"  Yaprak Sayısı:        {dt_metrics['Leaves']}")
 print("\n[3] Random Forest Modeli")
 print("-"*70)
 
+# Model ve parametreleri random_forest_model.py'den al
+rf_params = get_random_forest_params()
 print("🌲 Random Forest parametreleri:")
-print("  - n_estimators: 100 (100 farklı decision tree)")
-print("  - max_depth: 4 (her ağacın maksimum derinliği - basit)")
-print("  - min_samples_split: 200 (dallanma için minimum örnek)")
-print("  - min_samples_leaf: 100 (yaprak düğümdeki minimum örnek)")
-print("  - criterion: gini (bölünme kriteri)")
-print("  - random_state: 42")
-print("  - class_weight: balanced (dengesiz veri için)")
-print("  - n_jobs: -1 (paralel işleme)")
-print("  - max_features: sqrt (her dallanmada rastgele feature seç)")
+print(f"  - n_estimators: {rf_params['n_estimators']} ({rf_params['n_estimators']} farklı decision tree)")
+print(f"  - max_depth: {rf_params['max_depth']} (her ağacın maksimum derinliği - basit)")
+print(f"  - min_samples_split: {rf_params['min_samples_split']} (dallanma için minimum örnek)")
+print(f"  - min_samples_leaf: {rf_params['min_samples_leaf']} (yaprak düğümdeki minimum örnek)")
+print(f"  - criterion: {rf_params['criterion']} (bölünme kriteri)")
+print(f"  - random_state: {rf_params['random_state']}")
+print(f"  - class_weight: {rf_params['class_weight']} (dengesiz veri için)")
+print(f"  - n_jobs: {rf_params['n_jobs']} (paralel işleme)")
+print(f"  - max_features: {rf_params['max_features']} (her dallanmada rastgele feature seç)")
 
-rf_model = RandomForestClassifier(
-    n_estimators=100,
-    max_depth=4,
-    min_samples_split=200,
-    min_samples_leaf=100,
-    criterion='gini',
-    random_state=42,
-    class_weight='balanced',
-    n_jobs=-1,
-    max_features='sqrt'
-)
+rf_model = build_random_forest()
 
-print("⏳ Random Forest eğitiliyor (100 ağaç)...")
+print("\n⏳ Random Forest eğitiliyor (100 ağaç)...")
 rf_model.fit(X_train_split, y_train_split)
 print("✓ Eğitim tamamlandı!")
 
@@ -464,18 +475,8 @@ print("\n✓ Tüm grafikler hem birleşik hem de ayrı ayrı kaydedildi!")
 print("\n[6] Random Forest ile Test Tahminleri")
 print("-"*70)
 
-# Final Random Forest modeli
-final_rf = RandomForestClassifier(
-    n_estimators=100,
-    max_depth=4,
-    min_samples_split=200,
-    min_samples_leaf=100,
-    criterion='gini',
-    random_state=42,
-    class_weight='balanced',
-    n_jobs=-1,
-    max_features='sqrt'
-)
+# Final Random Forest modeli - random_forest_model.py'den al
+final_rf = build_random_forest()
 
 print("⏳ Final Random Forest modeli eğitiliyor...")
 final_rf.fit(X_train, y)
