@@ -39,9 +39,11 @@ print("\n[1] Veri Yükleme ve Keşif Analizi")
 print("-"*70)
 
 # Veri setlerini yükle
-train_df = pd.read_csv('data/aug_train.csv')
-test_df = pd.read_csv('data/aug_test.csv')
-submission = pd.read_csv('data/sample_submission.csv')
+import os
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+train_df = pd.read_csv(os.path.join(project_root, 'data', 'aug_train.csv'))
+test_df = pd.read_csv(os.path.join(project_root, 'data', 'aug_test.csv'))
+submission = pd.read_csv(os.path.join(project_root, 'data', 'sample_submission.csv'))
 
 print(f"✓ Train veri seti boyutu: {train_df.shape}")
 print(f"✓ Test veri seti boyutu: {test_df.shape}")
@@ -524,7 +526,7 @@ test_predictions = final_model.predict_proba(X_test)[:, 1]
 # Submission dosyasını hazırla
 os.makedirs('../submissions', exist_ok=True)
 submission['target'] = test_predictions
-submission.to_csv('submissions/submission_random_forest.csv', index=False)
+submission.to_csv('../submissions/submission_random_forest.csv', index=False)
 print(f"✓ Submission dosyası oluşturuldu: submissions/submission_random_forest.csv")
 print(f"✓ Tahmin edilen test örnekleri: {len(test_predictions)}")
 print(f"\nTahmin İstatistikleri:")
