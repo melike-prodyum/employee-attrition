@@ -236,9 +236,9 @@ for idx, row in feature_importance.head(10).iterrows():
 print("\n[5] Görselleştirmeler Oluşturuluyor...")
 print("-"*70)
 
-# outputs klasörünü oluştur
+# outputs/random_forest klasörünü oluştur
 import os
-os.makedirs('../outputs', exist_ok=True)
+os.makedirs('../outputs/random_forest', exist_ok=True)
 
 # Figure oluştur - Birleşik görsel
 fig = plt.figure(figsize=(20, 14))
@@ -329,8 +329,8 @@ for i in range(4):
     plt.title(f'Ağaç #{i+1} (İlk 2 Seviye)', fontsize=10, fontweight='bold')
 
 plt.tight_layout()
-plt.savefig('outputs/random_forest_analysis.png', dpi=300, bbox_inches='tight')
-print("✓ Birleşik grafik kaydedildi: outputs/random_forest_analysis.png")
+plt.savefig('../outputs/random_forest/random_forest_analysis.png', dpi=300, bbox_inches='tight')
+print("✓ Birleşik grafik kaydedildi: outputs/random_forest/random_forest_analysis.png")
 
 # ============================================================================
 # AYRI AYRI GRAFİKLER
@@ -346,7 +346,7 @@ plt.title('Confusion Matrix (Validation)', fontsize=14, fontweight='bold')
 plt.ylabel('Gerçek Değer')
 plt.xlabel('Tahmin')
 plt.tight_layout()
-plt.savefig('outputs/rf_confusion_matrix.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/random_forest/rf_confusion_matrix.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Confusion Matrix kaydedildi")
 
@@ -363,7 +363,7 @@ for i, (idx, row) in enumerate(top_features.iterrows()):
              va='center', fontsize=10, fontweight='bold')
 plt.gca().invert_yaxis()
 plt.tight_layout()
-plt.savefig('outputs/rf_feature_importance.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/random_forest/rf_feature_importance.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Feature Importance kaydedildi")
 
@@ -378,7 +378,7 @@ plt.title('ROC Curve', fontsize=14, fontweight='bold')
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.savefig('outputs/rf_roc_curve.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/random_forest/rf_roc_curve.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ ROC Curve kaydedildi")
 
@@ -391,7 +391,7 @@ plt.ylabel('Sayı')
 for i, v in enumerate(target_counts.values):
     plt.text(i, v + 50, str(v), ha='center', fontweight='bold')
 plt.tight_layout()
-plt.savefig('outputs/rf_target_distribution.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/random_forest/rf_target_distribution.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Target Distribution kaydedildi")
 
@@ -425,7 +425,7 @@ plt.legend()
 plt.ylim([0, 1.1])
 plt.grid(True, alpha=0.3, axis='y')
 plt.tight_layout()
-plt.savefig('outputs/rf_performance_metrics.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/random_forest/rf_performance_metrics.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Performance Metrics kaydedildi")
 
@@ -441,7 +441,7 @@ for i in range(4):
               rounded=True)
     plt.title(f'Random Forest - Ağaç #{i+1} (İlk 2 Seviye)', fontsize=14, fontweight='bold')
     plt.tight_layout()
-    plt.savefig(f'outputs/rf_tree_{i+1}.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'../outputs/random_forest/rf_tree_{i+1}.png', dpi=300, bbox_inches='tight')
     plt.close()
 print(f"  ✓ İlk 4 ağaç ayrı ayrı kaydedildi")
 
@@ -456,7 +456,7 @@ plot_tree(rf_model.estimators_[0],
           rounded=True,
           proportion=True)
 plt.title('Random Forest - İlk Ağaç (Tam Yapı)', fontsize=16, fontweight='bold', pad=20)
-plt.savefig('outputs/random_forest_single_tree.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/random_forest/random_forest_single_tree.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Tek ağaç görselleştirmesi kaydedildi")
 
@@ -489,7 +489,7 @@ plt.legend()
 plt.grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig('outputs/random_forest_tree_stats.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/random_forest/random_forest_tree_stats.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Ağaç istatistikleri kaydedildi")
 

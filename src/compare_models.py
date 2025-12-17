@@ -253,9 +253,9 @@ for short_name, display_name in metric_map.items():
 print("\n[5] Karşılaştırma Grafikleri")
 print("-"*70)
 
-# outputs klasörünü oluştur
+# outputs/compare_models klasörünü oluştur
 import os
-os.makedirs('../outputs', exist_ok=True)
+os.makedirs('../outputs/compare_models', exist_ok=True)
 
 # Birleşik görsel
 fig = plt.figure(figsize=(18, 12))
@@ -347,8 +347,8 @@ plt.legend()
 plt.grid(True, alpha=0.3, axis='y')
 
 plt.tight_layout()
-plt.savefig('../outputs/model_comparison.png', dpi=300, bbox_inches='tight')
-print("✓ Birleşik karşılaştırma grafiği kaydedildi: outputs/model_comparison.png")
+plt.savefig('../outputs/compare_models/model_comparison.png', dpi=300, bbox_inches='tight')
+print("✓ Birleşik karşılaştırma grafiği kaydedildi: outputs/compare_models/model_comparison.png")
 
 # ============================================================================
 # AYRI AYRI GRAFİKLER
@@ -374,7 +374,7 @@ plt.legend()
 plt.ylim([0, 1])
 plt.grid(True, alpha=0.3, axis='y')
 plt.tight_layout()
-plt.savefig('../outputs/compare_metrics.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/compare_models/compare_metrics.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Metrics Comparison kaydedildi")
 
@@ -391,7 +391,7 @@ plt.title('ROC Curve Karşılaştırması', fontsize=14, fontweight='bold')
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.savefig('../outputs/compare_roc_curves.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/compare_models/compare_roc_curves.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ ROC Curves kaydedildi")
 
@@ -405,7 +405,7 @@ plt.title('Decision Tree - Confusion Matrix', fontsize=14, fontweight='bold')
 plt.ylabel('Gerçek Değer')
 plt.xlabel('Tahmin')
 plt.tight_layout()
-plt.savefig('../outputs/compare_dt_confusion_matrix.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/compare_models/compare_dt_confusion_matrix.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Decision Tree Confusion Matrix kaydedildi")
 
@@ -419,7 +419,7 @@ plt.title('Random Forest - Confusion Matrix', fontsize=14, fontweight='bold')
 plt.ylabel('Gerçek Değer')
 plt.xlabel('Tahmin')
 plt.tight_layout()
-plt.savefig('../outputs/compare_rf_confusion_matrix.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/compare_models/compare_rf_confusion_matrix.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Random Forest Confusion Matrix kaydedildi")
 
@@ -440,7 +440,7 @@ plt.title('Top 8 Feature Importance Karşılaştırması', fontsize=14, fontweig
 plt.legend()
 plt.gca().invert_yaxis()
 plt.tight_layout()
-plt.savefig('../outputs/compare_feature_importance.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/compare_models/compare_feature_importance.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Feature Importance kaydedildi")
 
@@ -462,7 +462,7 @@ plt.xticks(x, models)
 plt.legend()
 plt.grid(True, alpha=0.3, axis='y')
 plt.tight_layout()
-plt.savefig('../outputs/compare_overfitting.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/compare_models/compare_overfitting.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Overfitting Analysis kaydedildi")
 

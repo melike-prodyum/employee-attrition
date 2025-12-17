@@ -244,6 +244,9 @@ for idx, row in feature_importance.head(10).iterrows():
 print("\n[5] Görselleştirmeler Oluşturuluyor...")
 print("-"*70)
 
+# outputs/decision_tree klasörünü oluştur
+os.makedirs('../outputs/decision_tree', exist_ok=True)
+
 # outputs klasörünü oluştur
 import os
 os.makedirs('../outputs', exist_ok=True)
@@ -335,8 +338,8 @@ plot_tree(dt_model,
 plt.title('Decision Tree Yapısı (İlk 3 Seviye)', fontsize=14, fontweight='bold')
 
 plt.tight_layout()
-plt.savefig('outputs/decision_tree_analysis.png', dpi=300, bbox_inches='tight')
-print("✓ Birleşik grafik kaydedildi: outputs/decision_tree_analysis.png")
+plt.savefig('../outputs/decision_tree/decision_tree_analysis.png', dpi=300, bbox_inches='tight')
+print("✓ Birleşik grafik kaydedildi: outputs/decision_tree/decision_tree_analysis.png")
 
 # ============================================================================
 # AYRI AYRI GRAFİKLER
@@ -352,7 +355,7 @@ plt.title('Confusion Matrix (Validation)', fontsize=14, fontweight='bold')
 plt.ylabel('Gerçek Değer')
 plt.xlabel('Tahmin')
 plt.tight_layout()
-plt.savefig('outputs/dt_confusion_matrix.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/decision_tree/dt_confusion_matrix.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Confusion Matrix kaydedildi")
 
@@ -369,7 +372,7 @@ for i, (idx, row) in enumerate(top_features.iterrows()):
              va='center', fontsize=10, fontweight='bold')
 plt.gca().invert_yaxis()
 plt.tight_layout()
-plt.savefig('outputs/dt_feature_importance.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/decision_tree/dt_feature_importance.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Feature Importance kaydedildi")
 
@@ -384,7 +387,7 @@ plt.title('ROC Curve', fontsize=14, fontweight='bold')
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.savefig('outputs/dt_roc_curve.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/decision_tree/dt_roc_curve.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ ROC Curve kaydedildi")
 
@@ -397,7 +400,7 @@ plt.ylabel('Sayı')
 for i, v in enumerate(target_counts.values):
     plt.text(i, v + 50, str(v), ha='center', fontweight='bold')
 plt.tight_layout()
-plt.savefig('outputs/dt_target_distribution.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/decision_tree/dt_target_distribution.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Target Distribution kaydedildi")
 
@@ -431,7 +434,7 @@ plt.legend()
 plt.ylim([0, 1.1])
 plt.grid(True, alpha=0.3, axis='y')
 plt.tight_layout()
-plt.savefig('outputs/dt_performance_metrics.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/decision_tree/dt_performance_metrics.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Performance Metrics kaydedildi")
 
@@ -446,7 +449,7 @@ plot_tree(dt_model,
           rounded=True)
 plt.title('Decision Tree Yapısı (İlk 3 Seviye)', fontsize=14, fontweight='bold')
 plt.tight_layout()
-plt.savefig('outputs/dt_tree_structure_simple.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/decision_tree/dt_tree_structure_simple.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Tree Structure (simplified) kaydedildi")
 
@@ -460,7 +463,7 @@ plot_tree(dt_model,
           rounded=True,
           proportion=True)
 plt.title('Decision Tree - Tam Yapı', fontsize=16, fontweight='bold', pad=20)
-plt.savefig('outputs/decision_tree_full.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/decision_tree/decision_tree_full.png', dpi=300, bbox_inches='tight')
 plt.close()
 print("  ✓ Tam ağaç görselleştirmesi kaydedildi")
 
@@ -491,7 +494,7 @@ test_predictions = final_model.predict_proba(X_test)[:, 1]
 # Submission dosyasını hazırla
 os.makedirs('../submissions', exist_ok=True)
 submission['target'] = test_predictions
-submission.to_csv('submissions/submission_decision_tree.csv', index=False)
+submission.to_csv('../submissions/submission_decision_tree.csv', index=False)
 print(f"✓ Submission dosyası oluşturuldu: submissions/submission_decision_tree.csv")
 print(f"✓ Tahmin edilen test örnekleri: {len(test_predictions)}")
 print(f"\nTahmin İstatistikleri:")
