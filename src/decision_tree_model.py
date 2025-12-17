@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier, plot_tree
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.metrics import (
     accuracy_score, 
     precision_score, 
@@ -106,20 +106,35 @@ for col in categorical_cols:
         X_test[col].fillna(mode_val, inplace=True)
         print(f"  - {col}: mode ile dolduruldu")
 
-# Kategorik değişkenleri encode et
-print("\n🔧 Kategorik değişkenleri encode etme:")
-label_encoders = {}
+# Kategorik değişkenleri One-Hot Encoding ile encode et
+print("\n🔧 Kategorik değişkenleri One-Hot Encoding ile encode etme:")
 
-for col in categorical_cols:
-    le = LabelEncoder()
-    # Train ve test'i birleştirerek tüm kategorileri öğren
-    combined = pd.concat([X_train[col], X_test[col]], axis=0)
-    le.fit(combined)
+if categorical_cols:
+    # One-Hot Encoding uygula
+    X_train_encoded = pd.get_dummies(X_train, columns=categorical_cols, drop_first=False)
+    X_test_encoded = pd.get_dummies(X_test, columns=categorical_cols, drop_first=False)
     
-    X_train[col] = le.transform(X_train[col])
-    X_test[col] = le.transform(X_test[col])
-    label_encoders[col] = le
-    print(f"  - {col}: {len(le.classes_)} kategori")
+    # Train ve test'te aynı sütunların olmasını sağla
+    # Test'te olmayan sütunları ekle (0 değeriyle)
+    missing_cols = set(X_train_encoded.columns) - set(X_test_encoded.columns)
+    for col in missing_cols:
+        X_test_encoded[col] = 0
+    
+    # Test'te olup train'de olmayan sütunları kaldır
+    extra_cols = set(X_test_encoded.columns) - set(X_train_encoded.columns)
+    X_test_encoded = X_test_encoded.drop(columns=extra_cols)
+    
+    # Sütun sırasını aynı yap
+    X_test_encoded = X_test_encoded[X_train_encoded.columns]
+    
+    X_train = X_train_encoded
+    X_test = X_test_encoded
+    
+    print(f"  - One-Hot Encoding tamamlandı")
+    print(f"  - Toplam {len(categorical_cols)} kategorik sütun encode edildi")
+    for col in categorical_cols:
+        encoded_cols = [c for c in X_train.columns if c.startswith(f"{col}_")]
+        print(f"  - {col}: {len(encoded_cols)} kategoriye dönüştürüldü")
 
 print(f"\n✓ Veri ön işleme tamamlandı!")
 print(f"✓ Train shape: {X_train.shape}")
@@ -139,18 +154,19 @@ X_train_split, X_val_split, y_train_split, y_val_split = train_test_split(
 print(f"✓ Train set: {X_train_split.shape[0]} örnekleri")
 print(f"✓ Validation set: {X_val_split.shape[0]} örnekleri")
 
-# Decision Tree modeli - Basit ve az dallı (Random Forest ile karşılaştırma için)
-print("\n🌳 Decision Tree parametreleri:")
-print("  - max_depth: 7 (ağacın maksimum derinliği - optimize edildi)")
-print("  - min_samples_split: 50 (dallanma için minimum örnek sayısı)")
-print("  - min_samples_leaf: 25 (yaprak düğümdeki minimum örnek sayısı)")
+# Decision Tree modeli - One-Hot Encoding ile optimize edildi
+print("\n🌳 Decision Tree parametreleri (One-Hot Encoding ile):")
+print("  - max_depth: 10 (ağacın maksimum derinliği - One-Hot için optimize edildi)")
+print("  - min_samples_split: 30 (dallanma için minimum örnek sayısı)")
+print("  - min_samples_leaf: 15 (yaprak düğümdeki minimum örnek sayısı)")
 print("  - criterion: gini (bölünme kriteri)")
 print("  - random_state: 42")
+print("  - class_weight: balanced (dengesiz veri için)")
 
 dt_model = DecisionTreeClassifier(
-    max_depth=7,                    # Daha iyi öğrenme için arttırıldı, yine de yorumlanabilir
-    min_samples_split=50,           # Daha fazla dallanma için azaltıldı
-    min_samples_leaf=25,            # Daha detaylı öğrenme için azaltıldı
+    max_depth=10,                   # One-Hot encoding sonrası daha fazla özellik, daha derin ağaç
+    min_samples_split=30,           # One-Hot ile daha fazla özellik var, biraz azalttık
+    min_samples_leaf=15,            # Daha detaylı öğrenme için azaltıldı
     criterion='gini',               # Gini impurity kullan
     random_state=42,
     class_weight='balanced'         # Dengesiz veri için sınıf ağırlıkları
