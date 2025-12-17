@@ -154,19 +154,19 @@ X_train_split, X_val_split, y_train_split, y_val_split = train_test_split(
 print(f"✓ Train set: {X_train_split.shape[0]} örnekleri")
 print(f"✓ Validation set: {X_val_split.shape[0]} örnekleri")
 
-# Decision Tree modeli - One-Hot Encoding ile optimize edildi
-print("\n🌳 Decision Tree parametreleri (One-Hot Encoding ile):")
-print("  - max_depth: 10 (ağacın maksimum derinliği - One-Hot için optimize edildi)")
-print("  - min_samples_split: 30 (dallanma için minimum örnek sayısı)")
-print("  - min_samples_leaf: 15 (yaprak düğümdeki minimum örnek sayısı)")
+# Decision Tree modeli - Basitleştirilmiş parametreler (Random Forest ile karşılaştırma için)
+print("\n🌳 Decision Tree parametreleri (Basitleştirilmiş):")
+print("  - max_depth: 5 (ağacın maksimum derinliği - sınırlandırıldı)")
+print("  - min_samples_split: 100 (dallanma için minimum örnek sayısı)")
+print("  - min_samples_leaf: 50 (yaprak düğümdeki minimum örnek sayısı)")
 print("  - criterion: gini (bölünme kriteri)")
 print("  - random_state: 42")
 print("  - class_weight: balanced (dengesiz veri için)")
 
 dt_model = DecisionTreeClassifier(
-    max_depth=10,                   # One-Hot encoding sonrası daha fazla özellik, daha derin ağaç
-    min_samples_split=30,           # One-Hot ile daha fazla özellik var, biraz azalttık
-    min_samples_leaf=15,            # Daha detaylı öğrenme için azaltıldı
+    max_depth=5,                    # Daha sığ ağaç - overfitting önleme
+    min_samples_split=100,          # Daha fazla örnek gerekli
+    min_samples_leaf=50,            # Daha büyük yaprak düğümleri
     criterion='gini',               # Gini impurity kullan
     random_state=42,
     class_weight='balanced'         # Dengesiz veri için sınıf ağırlıkları
