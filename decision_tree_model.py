@@ -137,18 +137,18 @@ X_train_split, X_val_split, y_train_split, y_val_split = train_test_split(
 print(f"✓ Train set: {X_train_split.shape[0]} örnekleri")
 print(f"✓ Validation set: {X_val_split.shape[0]} örnekleri")
 
-# Decision Tree modeli - Sınırlı derinlik ile (çok dallı olmaması için)
+# Decision Tree modeli - Basit ve az dallı (Random Forest ile karşılaştırma için)
 print("\n🌳 Decision Tree parametreleri:")
-print("  - max_depth: 6 (ağacın maksimum derinliği)")
-print("  - min_samples_split: 100 (dallanma için minimum örnek sayısı)")
-print("  - min_samples_leaf: 50 (yaprak düğümdeki minimum örnek sayısı)")
+print("  - max_depth: 4 (ağacın maksimum derinliği - basit tutuldu)")
+print("  - min_samples_split: 200 (dallanma için minimum örnek sayısı)")
+print("  - min_samples_leaf: 100 (yaprak düğümdeki minimum örnek sayısı)")
 print("  - criterion: gini (bölünme kriteri)")
 print("  - random_state: 42")
 
 dt_model = DecisionTreeClassifier(
-    max_depth=6,                    # Çok dallı olmaması için sınırlı derinlik
-    min_samples_split=100,          # Dallanma için gereken minimum örnek sayısı
-    min_samples_leaf=50,            # Her yaprakta en az bu kadar örnek olmalı
+    max_depth=4,                    # Basit ve anlaşılır ağaç için düşük derinlik
+    min_samples_split=200,          # Daha az dallanma için artırıldı
+    min_samples_leaf=100,           # Her yaprakta daha fazla örnek - daha az dal
     criterion='gini',               # Gini impurity kullan
     random_state=42,
     class_weight='balanced'         # Dengesiz veri için sınıf ağırlıkları
@@ -296,13 +296,13 @@ plt.grid(True, alpha=0.3, axis='y')
 # 6. Decision Tree yapısını göster (basitleştirilmiş)
 ax6 = plt.subplot(2, 3, 6)
 plot_tree(dt_model, 
-          max_depth=3,  # Görselleştirme için sadece ilk 3 seviye
+          max_depth=2,  # Görselleştirme için sadece ilk 2 seviye
           filled=True, 
           feature_names=X_train.columns,
           class_names=['Not Leave', 'Leave'],
           fontsize=8,
           rounded=True)
-plt.title('Decision Tree Yapısı (İlk 3 Seviye)', fontsize=14, fontweight='bold')
+plt.title('Decision Tree Yapısı (İlk 2 Seviye)', fontsize=14, fontweight='bold')
 
 plt.tight_layout()
 plt.savefig('decision_tree_analysis.png', dpi=300, bbox_inches='tight')
@@ -330,9 +330,9 @@ print("-"*70)
 # Tüm train verisi ile son modeli eğit
 print("⏳ Final model tüm train verisi ile eğitiliyor...")
 final_model = DecisionTreeClassifier(
-    max_depth=6,
-    min_samples_split=100,
-    min_samples_leaf=50,
+    max_depth=4,
+    min_samples_split=200,
+    min_samples_leaf=100,
     criterion='gini',
     random_state=42,
     class_weight='balanced'

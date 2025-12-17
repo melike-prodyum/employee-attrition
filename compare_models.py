@@ -82,9 +82,9 @@ print("\n[2] Decision Tree Modeli")
 print("-"*70)
 
 dt_model = DecisionTreeClassifier(
-    max_depth=6,
-    min_samples_split=100,
-    min_samples_leaf=50,
+    max_depth=4,
+    min_samples_split=200,
+    min_samples_leaf=100,
     criterion='gini',
     random_state=42,
     class_weight='balanced'
@@ -131,9 +131,9 @@ print("-"*70)
 
 rf_model = RandomForestClassifier(
     n_estimators=100,        # 100 ağaç
-    max_depth=6,             # Her ağaç için maksimum derinlik
-    min_samples_split=100,
-    min_samples_leaf=50,
+    max_depth=4,             # Her ağaç için maksimum derinlik
+    min_samples_split=200,
+    min_samples_leaf=100,
     criterion='gini',
     random_state=42,
     class_weight='balanced',
@@ -323,9 +323,9 @@ print("-"*70)
 # Final Random Forest modeli
 final_rf = RandomForestClassifier(
     n_estimators=100,
-    max_depth=6,
-    min_samples_split=100,
-    min_samples_leaf=50,
+    max_depth=4,
+    min_samples_split=200,
+    min_samples_leaf=100,
     criterion='gini',
     random_state=42,
     class_weight='balanced',
