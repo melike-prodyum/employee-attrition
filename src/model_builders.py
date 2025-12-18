@@ -34,9 +34,9 @@ def build_random_forest():
     """
     rf_model = RandomForestClassifier(
         n_estimators=100,
-        max_depth=4,
-        min_samples_split=200,
-        min_samples_leaf=100,
+        max_depth=3,
+        min_samples_split=300,
+        min_samples_leaf=150,
         criterion='gini',
         random_state=42,
         class_weight='balanced',
@@ -62,9 +62,9 @@ def get_random_forest_params():
     """Random Forest parametrelerini döndürür."""
     return {
         'n_estimators': 100,
-        'max_depth': 4,
-        'min_samples_split': 200,
-        'min_samples_leaf': 100,
+        'max_depth': 3,
+        'min_samples_split': 300,
+        'min_samples_leaf': 150,
         'criterion': 'gini',
         'random_state': 42,
         'class_weight': 'balanced',
