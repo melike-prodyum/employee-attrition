@@ -3,6 +3,70 @@
 
 Bu proje, çalışanların işten ayrılma olasılığını tahmin etmek için **Decision Tree** ve **Random Forest** makine öğrenmesi modellerini kullanır. Proje, modüler kod yapısı ile geliştirilmiş olup, iki yöntem arasındaki farkları detaylı analiz ve görselleştirmelerle gösterir.
 
+### 🎯 Proje Özellikleri
+- ✅ Modüler ve yeniden kullanılabilir kod yapısı
+- ✅ Detaylı görselleştirmeler ve analizler
+- ✅ Decision Tree ve Random Forest karşılaştırması
+- ✅ Kapsamlı model değerlendirme metrikleri
+- ✅ One-Hot Encoding ile özellik mühendisliği
+- ✅ Class balancing ile imbalanced dataset yönetimi
+- ✅ Submission dosyaları üretimi
+
+---
+
+## 🚀 Kurulum ve Başlangıç
+
+### Gereksinimler
+- Python 3.8 veya üzeri
+- pip package manager
+
+### 1. Projeyi Klonlayın
+```bash
+git clone <repository-url>
+cd employee-attrition
+```
+
+### 2. Virtual Environment Oluşturun
+```bash
+# Windows
+python -m venv .venv
+.venv\Scripts\activate
+
+# Linux/Mac
+python -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Gerekli Paketleri Yükleyin
+```bash
+pip install -r requirements.txt
+```
+
+**Gerekli Paketler:**
+- pandas (>= 1.5.0)
+- numpy (>= 1.23.0)
+- scikit-learn (>= 1.2.0)
+- matplotlib (>= 3.6.0)
+- seaborn (>= 0.12.0)
+
+### 4. Veri Setlerini Hazırlayın
+`data/` klasöründe aşağıdaki dosyaların bulunduğundan emin olun:
+- `aug_train.csv`
+- `aug_test.csv`
+- `sample_submission.csv`
+
+### 5. Hızlı Başlangıç
+```bash
+# Tek bir model çalıştırmak için:
+python src/decision_tree_model.py
+
+# Veya Random Forest:
+python src/random_forest_model.py
+
+# Karşılaştırma yapmak için:
+python src/compare_models.py
+```
+
 ---
 
 ## 📊 Veri Seti
@@ -30,7 +94,9 @@ Bu proje, çalışanların işten ayrılma olasılığını tahmin etmek için *
 
 ---
 
-## 🚀 Kullanım
+## 🚀 Modelleri Çalıştırma
+
+Projenin kök dizininde (README.md ile aynı klasörde), virtual environment aktifken aşağıdaki komutları çalıştırın:
 
 ### 1. Decision Tree Modeli
 ```bash
@@ -275,6 +341,10 @@ RandomForestClassifier(
 
 ```
 employee-attrition/
+├── .venv/                              # Python virtual environment
+├── .git/                               # Git repository
+├── .gitignore                          # Git ignore dosyası
+│
 ├── data/
 │   ├── aug_train.csv                   # Eğitim verisi (19,158 örnek)
 │   ├── aug_test.csv                    # Test verisi (2,129 örnek)
@@ -319,6 +389,7 @@ employee-attrition/
 │   └── submission_random_forest.csv    # Random Forest test tahminleri
 │
 ├── docs/                               # Dokümantasyon (opsiyonel)
+├── requirements.txt                    # Python paket gereksinimleri
 └── README.md                           # Bu dosya
 ```
 
@@ -387,10 +458,85 @@ Model değerlendirme fonksiyonları:
 - [ ] **Deep Learning**: Neural Network modelleri deneme
 - [ ] **Explainability**: SHAP, LIME ile model açıklanabilirliği
 - [ ] **API Development**: Flask/FastAPI ile model servisi
+- [ ] **Dockerization**: Docker container ile deployment
 
 ---
 
-## 📧 İletişim ve Katkı
+## 🔧 Sorun Giderme
+
+### Yaygın Hatalar ve Çözümleri
+
+**1. ModuleNotFoundError:**
+```bash
+# Çözüm: Gerekli paketleri yükleyin
+pip install -r requirements.txt
+```
+
+**2. FileNotFoundError (veri bulunamadı):**
+```bash
+# Çözüm: Projenin kök dizininden çalıştırdığınızdan emin olun
+cd c:\Users\botyum\source\repos\employee-attrition
+python src/decision_tree_model.py
+```
+
+**3. Virtual environment aktif değil:**
+```bash
+# Windows
+.venv\Scripts\activate
+
+# Linux/Mac
+source .venv/bin/activate
+```
+
+**4. Görselleştirmeler açılmıyor:**
+- Matplotlib backend'ini kontrol edin
+- `outputs/` klasöründeki PNG dosyalarını manuel olarak açın
+
+---
+
+## � Kullanım İpuçları
+
+### Önerilen Çalışma Akışı
+1. **İlk Çalıştırma**: `python src/decision_tree_model.py` ile başlayın
+2. **Karşılaştırma**: `python src/random_forest_model.py` çalıştırın
+3. **Analiz**: `python src/compare_models.py` ile detaylı karşılaştırma yapın
+4. **Görselleştirmeler**: `outputs/` klasöründeki grafikleri inceleyin
+5. **Submission**: `submissions/` klasöründeki CSV dosyalarını kullanın
+
+### Kod Modifikasyonu
+- Model parametrelerini değiştirmek için: [src/model_builders.py](src/model_builders.py)
+- Veri işleme pipeline'ını değiştirmek için: [src/data_utils.py](src/data_utils.py)
+- Değerlendirme metriklerini özelleştirmek için: [src/evaluation_utils.py](src/evaluation_utils.py)
+
+### Performans İyileştirme
+- Random Forest'ta `n_jobs=-1` tüm CPU çekirdeklerini kullanır
+- Daha hızlı eğitim için `n_estimators` sayısını azaltabilirsiniz
+- Bellek tasarrufu için `max_depth` değerini düşürün
+
+---
+
+## 📊 Örnek Çıktılar
+
+Modeller çalıştırıldığında aşağıdaki çıktılar üretilir:
+
+### Decision Tree
+- **Konsol**: Detaylı metrikler, confusion matrix, feature importance
+- **Görseller**: 5 farklı görselleştirme (analiz, ağaç yapısı, metrikler)
+- **Submission**: Test seti tahminleri CSV formatında
+
+### Random Forest
+- **Konsol**: 100 ağaç istatistikleri, ensemble metrikleri
+- **Görseller**: Ağaç örnekleri, istatistikler, performans grafikleri
+- **Submission**: Test seti tahminleri CSV formatında
+
+### Model Karşılaştırma
+- **Konsol**: Yan yana metrik karşılaştırması, overfitting analizi
+- **Görseller**: 7 farklı karşılaştırma grafiği
+- **Analiz**: Train vs Validation performans karşılaştırması
+
+---
+
+## �📧 İletişim ve Katkı
 
 Bu proje, Decision Tree ve Random Forest algoritmalarının pratik uygulamasını ve karşılaştırmasını göstermek amacıyla geliştirilmiştir.
 
