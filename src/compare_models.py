@@ -236,14 +236,23 @@ rf_vals = [rf_metrics['Val Accuracy'], rf_metrics['Val Precision'],
 
 x = np.arange(len(metrics))
 width = 0.35
-plt.bar(x - width/2, dt_vals, width, label='Decision Tree', color='#e74c3c', alpha=0.8)
-plt.bar(x + width/2, rf_vals, width, label='Random Forest', color='#2ecc71', alpha=0.8)
+bars1 = plt.bar(x - width/2, dt_vals, width, label='Decision Tree', color='#e74c3c', alpha=0.8)
+bars2 = plt.bar(x + width/2, rf_vals, width, label='Random Forest', color='#2ecc71', alpha=0.8)
+
+# Değerleri barların üzerine ekle
+for i, (bar, val) in enumerate(zip(bars1, dt_vals)):
+    plt.text(bar.get_x() + bar.get_width()/2., val + 0.02, f'{val:.3f}',
+             ha='center', va='bottom', fontsize=7, fontweight='bold', color='#c0392b')
+for i, (bar, val) in enumerate(zip(bars2, rf_vals)):
+    plt.text(bar.get_x() + bar.get_width()/2., val + 0.02, f'{val:.3f}',
+             ha='center', va='bottom', fontsize=7, fontweight='bold', color='#27ae60')
+
 plt.xlabel('Metrikler', fontweight='bold')
 plt.ylabel('Skor', fontweight='bold')
 plt.title('Model Performansı Karşılaştırması (Validation)', fontsize=12, fontweight='bold')
 plt.xticks(x, metrics, rotation=45, ha='right')
 plt.legend()
-plt.ylim([0, 1])
+plt.ylim([0, 1.1])
 plt.grid(True, alpha=0.3, axis='y')
 
 # 2. ROC Curves
@@ -285,8 +294,17 @@ dt_importance = pd.DataFrame({
 
 x = np.arange(len(dt_importance))
 width = 0.35
-plt.barh(x - width/2, dt_importance['DT_Importance'], width, label='Decision Tree', color='#e74c3c', alpha=0.8)
-plt.barh(x + width/2, dt_importance['RF_Importance'], width, label='Random Forest', color='#2ecc71', alpha=0.8)
+bars1 = plt.barh(x - width/2, dt_importance['DT_Importance'], width, label='Decision Tree', color='#e74c3c', alpha=0.8)
+bars2 = plt.barh(x + width/2, dt_importance['RF_Importance'], width, label='Random Forest', color='#2ecc71', alpha=0.8)
+
+# Değerleri barların yanına ekle
+for i, (bar, val) in enumerate(zip(bars1, dt_importance['DT_Importance'])):
+    plt.text(val + 0.002, bar.get_y() + bar.get_height()/2., f'{val:.3f}',
+             ha='left', va='center', fontsize=7, fontweight='bold', color='#c0392b')
+for i, (bar, val) in enumerate(zip(bars2, dt_importance['RF_Importance'])):
+    plt.text(val + 0.002, bar.get_y() + bar.get_height()/2., f'{val:.3f}',
+             ha='left', va='center', fontsize=7, fontweight='bold', color='#27ae60')
+
 plt.yticks(x, dt_importance['Feature'])
 plt.xlabel('Importance', fontweight='bold')
 plt.title('Top 8 Feature Importance', fontsize=12, fontweight='bold')
@@ -346,14 +364,23 @@ rf_vals = [rf_metrics['Val Accuracy'], rf_metrics['Val Precision'],
            rf_metrics['Val Recall'], rf_metrics['Val F1'], rf_metrics['Val ROC-AUC']]
 x = np.arange(len(metrics))
 width = 0.35
-plt.bar(x - width/2, dt_vals, width, label='Decision Tree', color='#c0392b', alpha=0.8)
-plt.bar(x + width/2, rf_vals, width, label='Random Forest', color='#27ae60', alpha=0.8)
+bars1 = plt.bar(x - width/2, dt_vals, width, label='Decision Tree', color='#c0392b', alpha=0.8)
+bars2 = plt.bar(x + width/2, rf_vals, width, label='Random Forest', color='#27ae60', alpha=0.8)
+
+# Değerleri barların üzerine ekle
+for i, (bar, val) in enumerate(zip(bars1, dt_vals)):
+    plt.text(bar.get_x() + bar.get_width()/2., val + 0.02, f'{val:.3f}',
+             ha='center', va='bottom', fontsize=9, fontweight='bold', color='#c0392b')
+for i, (bar, val) in enumerate(zip(bars2, rf_vals)):
+    plt.text(bar.get_x() + bar.get_width()/2., val + 0.02, f'{val:.3f}',
+             ha='center', va='bottom', fontsize=9, fontweight='bold', color='#27ae60')
+
 plt.xlabel('Metrikler', fontweight='bold')
 plt.ylabel('Skor', fontweight='bold')
 plt.title('Model Performansı Karşılaştırması (Validation)', fontsize=14, fontweight='bold')
 plt.xticks(x, metrics, rotation=45, ha='right')
 plt.legend()
-plt.ylim([0, 1])
+plt.ylim([0, 1.1])
 plt.grid(True, alpha=0.3, axis='y')
 plt.tight_layout()
 plt.savefig('../outputs/compare_models/compare_metrics.png', dpi=300, bbox_inches='tight')
@@ -414,8 +441,17 @@ dt_importance = pd.DataFrame({
 }).sort_values('RF_Importance', ascending=False).head(8)
 x = np.arange(len(dt_importance))
 width = 0.35
-plt.barh(x - width/2, dt_importance['DT_Importance'], width, label='Decision Tree', color='#e74c3c', alpha=0.8)
-plt.barh(x + width/2, dt_importance['RF_Importance'], width, label='Random Forest', color='#2ecc71', alpha=0.8)
+bars1 = plt.barh(x - width/2, dt_importance['DT_Importance'], width, label='Decision Tree', color='#e74c3c', alpha=0.8)
+bars2 = plt.barh(x + width/2, dt_importance['RF_Importance'], width, label='Random Forest', color='#2ecc71', alpha=0.8)
+
+# Değerleri barların yanına ekle
+for i, (bar, val) in enumerate(zip(bars1, dt_importance['DT_Importance'])):
+    plt.text(val + 0.003, bar.get_y() + bar.get_height()/2., f'{val:.3f}',
+             ha='left', va='center', fontsize=10, fontweight='bold', color='#c0392b')
+for i, (bar, val) in enumerate(zip(bars2, dt_importance['RF_Importance'])):
+    plt.text(val + 0.003, bar.get_y() + bar.get_height()/2., f'{val:.3f}',
+             ha='left', va='center', fontsize=10, fontweight='bold', color='#27ae60')
+
 plt.yticks(x, dt_importance['Feature'])
 plt.xlabel('Importance', fontweight='bold')
 plt.title('Top 8 Feature Importance Karşılaştırması', fontsize=14, fontweight='bold')
