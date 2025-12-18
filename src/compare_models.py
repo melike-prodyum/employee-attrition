@@ -293,24 +293,40 @@ plt.title('Top 8 Feature Importance', fontsize=12, fontweight='bold')
 plt.legend()
 plt.gca().invert_yaxis()
 
-# 5. Overfitting Comparison
+# 5. Overfitting Gap
 ax6 = plt.subplot(2, 3, 6)
 models = ['Decision Tree', 'Random Forest']
 train_scores = [dt_metrics['Train Accuracy'], rf_metrics['Train Accuracy']]
 val_scores = [dt_metrics['Val Accuracy'], rf_metrics['Val Accuracy']]
-overfit = [train_scores[0] - val_scores[0], train_scores[1] - val_scores[1]]
+overfit_pct = [(train_scores[0] - val_scores[0])*100, (train_scores[1] - val_scores[1])*100]
 
-x = np.arange(len(models))
-width = 0.25
-plt.bar(x - width, train_scores, width, label='Train', color='#3498db')
-plt.bar(x, val_scores, width, label='Validation', color='#f39c12')
-plt.bar(x + width, overfit, width, label='Overfitting Gap', color='#95a5a6')
-plt.xlabel('Model', fontweight='bold')
-plt.ylabel('Accuracy', fontweight='bold')
-plt.title('Overfitting Analizi', fontsize=12, fontweight='bold')
-plt.xticks(x, models)
-plt.legend()
-plt.grid(True, alpha=0.3, axis='y')
+colors = ['#e74c3c', '#2ecc71']
+bars = plt.bar(models, overfit_pct, color=colors, alpha=0.85, width=0.55, edgecolor='white', linewidth=2)
+
+# Her barın üzerine değeri yaz
+for i, (bar, gap) in enumerate(zip(bars, overfit_pct)):
+    height = bar.get_height()
+    if height > 0:
+        y_pos = height + 0.15
+        va = 'bottom'
+        text_color = '#2c3e50'
+    else:
+        y_pos = height / 2  # Negatif bar'ın ortasına yerleştir
+        va = 'center'
+        text_color = 'white'  # Bar içinde beyaz renk
+    plt.text(bar.get_x() + bar.get_width()/2., y_pos,
+            f'{gap:.2f}%',
+            ha='center', va=va, 
+            fontsize=9, fontweight='bold', color=text_color)
+
+plt.ylabel('Gap (%)', fontweight='bold', fontsize=10)
+plt.xlabel('')
+plt.title('Overfitting Gap', fontsize=11, fontweight='bold', pad=10)
+plt.axhline(y=0, color='#34495e', linestyle='-', linewidth=1.2)
+plt.grid(True, alpha=0.25, axis='y', linestyle='--')
+plt.tick_params(axis='both', labelsize=9)
+ax6.spines['top'].set_visible(False)
+ax6.spines['right'].set_visible(False)
 
 plt.tight_layout()
 plt.savefig('../outputs/compare_models/model_comparison.png', dpi=300, bbox_inches='tight')
@@ -410,27 +426,48 @@ plt.savefig('../outputs/compare_models/compare_feature_importance.png', dpi=300,
 plt.close()
 print("  ✓ Feature Importance kaydedildi")
 
-# 6. Overfitting Analysis - Ayrı
+# 6. Overfitting Gap - Ayrı
 fig6 = plt.figure(figsize=(10, 6))
+ax = plt.gca()
 models = ['Decision Tree', 'Random Forest']
 train_scores = [dt_metrics['Train Accuracy'], rf_metrics['Train Accuracy']]
 val_scores = [dt_metrics['Val Accuracy'], rf_metrics['Val Accuracy']]
-overfit = [train_scores[0] - val_scores[0], train_scores[1] - val_scores[1]]
-x = np.arange(len(models))
-width = 0.25
-plt.bar(x - width, train_scores, width, label='Train', color='#3498db')
-plt.bar(x, val_scores, width, label='Validation', color='#f39c12')
-plt.bar(x + width, overfit, width, label='Overfitting Gap', color='#95a5a6')
-plt.xlabel('Model', fontweight='bold')
-plt.ylabel('Accuracy', fontweight='bold')
-plt.title('Overfitting Analizi', fontsize=14, fontweight='bold')
-plt.xticks(x, models)
-plt.legend()
-plt.grid(True, alpha=0.3, axis='y')
+overfit_pct = [(train_scores[0] - val_scores[0])*100, (train_scores[1] - val_scores[1])*100]
+
+colors = ['#e74c3c', '#2ecc71']
+bars = ax.bar(models, overfit_pct, color=colors, alpha=0.85, width=0.5, edgecolor='white', linewidth=2.5)
+
+# Her barın üzerine değeri yaz
+for i, (bar, gap) in enumerate(zip(bars, overfit_pct)):
+    height = bar.get_height()
+    if height > 0:
+        y_pos = height + 0.15
+        va = 'bottom'
+        text_color = '#2c3e50'
+    else:
+        y_pos = height / 2  # Negatif bar'ın ortasına yerleştir
+        va = 'center'
+        text_color = 'white'  # Bar içinde beyaz renk
+    ax.text(bar.get_x() + bar.get_width()/2., y_pos,
+            f'{gap:.2f}%',
+            ha='center', va=va, 
+            fontsize=15, fontweight='bold', color=text_color)
+
+ax.set_ylabel('Gap (%)', fontweight='bold', fontsize=13)
+ax.set_xlabel('')
+ax.set_title('Overfitting Gap Karşılaştırması', fontsize=15, fontweight='bold', pad=15)
+ax.axhline(y=0, color='#34495e', linestyle='-', linewidth=1.5, zorder=0)
+ax.grid(True, alpha=0.25, axis='y', linestyle='--')
+ax.tick_params(axis='both', labelsize=12)
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.spines['left'].set_linewidth(1.5)
+ax.spines['bottom'].set_linewidth(1.5)
+
 plt.tight_layout()
 plt.savefig('../outputs/compare_models/compare_overfitting.png', dpi=300, bbox_inches='tight')
 plt.close()
-print("  ✓ Overfitting Analysis kaydedildi")
+print("  ✓ Overfitting Gap kaydedildi")
 
 print("\n✓ Tüm grafikler hem birleşik hem de ayrı ayrı kaydedildi!")
 
