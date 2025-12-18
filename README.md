@@ -32,32 +32,48 @@ Bu proje, çalışanların işten ayrılma olasılığını tahmin etmek için *
 
 ### 1. Decision Tree Modeli
 ```bash
-python decision_tree_model.py
+python src/decision_tree_model.py
 ```
 
 **Çıktılar:**
-- `decision_tree_analysis.png` - Genel analiz grafikleri
-- `decision_tree_full.png` - Tam ağaç yapısı
-- `submission_decision_tree.csv` - Test tahminleri
+- `outputs/decision_tree/decision_tree_analysis.png` - Birleşik analiz grafikleri
+- `outputs/decision_tree/decision_tree_full.png` - Tam ağaç yapısı
+- `outputs/decision_tree/dt_confusion_matrix.png` - Confusion matrix
+- `outputs/decision_tree/dt_feature_importance.png` - Özellik önemleri
+- `outputs/decision_tree/dt_roc_curve.png` - ROC eğrisi
+- `submissions/submission_decision_tree.csv` - Test tahminleri
 
 ### 2. Random Forest Modeli
 ```bash
-python random_forest_model.py
+python src/random_forest_model.py
 ```
 
 **Çıktılar:**
-- `random_forest_analysis.png` - Genel analiz grafikleri (4 ağaç örneği)
-- `random_forest_single_tree.png` - Tek ağaç tam yapısı
-- `random_forest_tree_stats.png` - Ağaç istatistikleri
-- `submission_random_forest.csv` - Test tahminleri
+- `outputs/random_forest/random_forest_analysis.png` - Birleşik analiz grafikleri (4 ağaç örneği)
+- `outputs/random_forest/random_forest_single_tree.png` - Tek ağaç tam yapısı
+- `outputs/random_forest/random_forest_tree_stats.png` - Ağaç istatistikleri
+- `outputs/random_forest/rf_confusion_matrix.png` - Confusion matrix
+- `outputs/random_forest/rf_feature_importance.png` - Özellik önemleri
+- `outputs/random_forest/rf_roc_curve.png` - ROC eğrisi
+- `submissions/submission_random_forest.csv` - Test tahminleri
+
+**Not:** Bu model Label Encoding kullanır
 
 ### 3. Model Karşılaştırması (Decision Tree vs Random Forest)
 ```bash
-python compare_models.py
+python src/compare_models.py
 ```
 
 **Çıktılar:**
-- `model_comparison.png` - Karşılaştırma grafikleri
+- `outputs/compare_models/model_comparison.png` - Birleşik karşılaştırma grafikleri
+- `outputs/compare_models/compare_metrics.png` - Metrik karşılaştırması
+- `outputs/compare_models/compare_roc_curves.png` - ROC eğrileri karşılaştırması
+- `outputs/compare_models/compare_dt_confusion_matrix.png` - Decision Tree confusion matrix
+- `outputs/compare_models/compare_rf_confusion_matrix.png` - Random Forest confusion matrix
+- `outputs/compare_models/compare_feature_importance.png` - Özellik önemleri karşılaştırması
+- `outputs/compare_models/compare_overfitting.png` - Overfitting analizi
+
+**Not:** Bu karşılaştırma One-Hot Encoding kullanır
 
 ---
 
@@ -66,19 +82,21 @@ python compare_models.py
 ### Decision Tree (Validation Set)
 | Metrik | Değer |
 |--------|-------|
-| **Accuracy** | 0.6936 |
-| **Precision** | 0.4325 |
-| **Recall** | 0.7351 |
-| **F1-Score** | 0.5446 |
-| **ROC-AUC** | 0.7700 |
+| **Accuracy** | 0.6962 |
+| **Precision** | 0.4393 |
+| **Recall** | 0.7916 |
+| **F1-Score** | 0.5650 |
+| **ROC-AUC** | 0.7816 |
 
 **Model Özellikleri:**
-- Ağaç Derinliği: 4
-- Yaprak Sayısı: 13
+- Ağaç Derinliği: 5
+- Yaprak Sayısı: 26
 - Tek ağaç kullanır
 - Basit ve yorumlanabilir
 
 ### Random Forest (Validation Set)
+
+#### Label Encoding ile:
 | Metrik | Değer |
 |--------|-------|
 | **Accuracy** | 0.7677 |
@@ -87,19 +105,38 @@ python compare_models.py
 | **F1-Score** | 0.5857 |
 | **ROC-AUC** | 0.7877 |
 
+#### One-Hot Encoding ile (Compare Models):
+| Metrik | Değer |
+|--------|-------|
+| **Accuracy** | 0.7523 |
+| **Precision** | 0.5024 |
+| **Recall** | 0.6639 |
+| **F1-Score** | 0.5719 |
+| **ROC-AUC** | 0.7808 |
+
 **Model Özellikleri:**
 - Ağaç Sayısı: 100
 - Her ağaç derinliği: 4
-- Ortalama yaprak sayısı: ~14
+- Ortalama yaprak sayısı: ~14.21
 - Ensemble metodu
 - Daha robust ve dengeli
+- **En iyi sonuç**: Label Encoding ile
 
 ### İyileşmeler (Random Forest vs Decision Tree)
-- **Accuracy**: +10.68% ↑
-- **Precision**: +21.90% ↑
-- **Recall**: -10.40% ↓
-- **F1-Score**: +7.54% ↑
-- **ROC-AUC**: +2.31% ↑
+
+#### Label Encoding ile:
+- **Accuracy**: +10.27% ↑
+- **Precision**: +20.01% ↑
+- **Recall**: -16.81% ↓
+- **F1-Score**: +3.66% ↑
+- **ROC-AUC**: +0.78% ↑
+
+#### One-Hot Encoding ile (Compare Models):
+- **Accuracy**: +8.06% ↑
+- **Precision**: +14.36% ↑
+- **Recall**: -16.14% ↓
+- **F1-Score**: +1.23% ↑
+- **ROC-AUC**: -0.11% ↓
 
 ---
 
@@ -137,23 +174,31 @@ python compare_models.py
 | Özellik | Decision Tree | Random Forest |
 |---------|---------------|---------------|
 | Ağaç Sayısı | 1 | 100 |
-| Ağaç Derinliği | 4 | 4 (her biri) |
-| Yaprak Sayısı | 13 | ~14 (her ağaç) |
+| Ağaç Derinliği | 5 | 4 (her biri) |
+| Yaprak Sayısı | 26 | ~14.21 (her ağaç) |
 | Veri Örnekleme | Tüm veri | Bootstrap sampling |
 | Feature Seçimi | Tüm features | Rastgele subset (sqrt) |
 | Tahmin | Tek ağaç | Ağaçların ortalaması |
 | Yorumlanabilirlik | Yüksek | Düşük |
-| Accuracy | 69.36% | 76.77% |
+| Accuracy | 69.62% | 76.77% |
 
 ---
 
 ## 📊 En Önemli Özellikler
 
-1. **city_development_index** (0.5853) - Şehir gelişmişlik endeksi
-2. **company_size** (0.2269) - Şirket büyüklüğü
-3. **education_level** (0.0511) - Eğitim seviyesi
-4. **relevent_experience** (0.0511) - İlgili deneyim
-5. **city** (0.0351) - Şehir
+### Decision Tree
+1. **city_development_index** (0.6045) - Şehir gelişmişlik endeksi
+2. **company_size_50-99** (0.2238) - Şirket büyüklüğü (50-99 çalışan)
+3. **education_level_Graduate** (0.0519) - Eğitim seviyesi (Lisans)
+4. **relevent_experience** (0.0500) - İlgili deneyim
+5. **city_city_103** (0.0209) - Şehir 103
+
+### Random Forest
+1. **city_development_index** (0.5407) - Şehir gelişmişlik endeksi
+2. **city** (0.1287) - Şehir kodu
+3. **company_size** (0.1045) - Şirket büyüklüğü
+4. **enrolled_university** (0.0755) - Üniversite kayıt durumu
+5. **relevent_experience** (0.0624) - İlgili deneyim
 
 ---
 
@@ -171,11 +216,12 @@ python compare_models.py
 ## 📝 Veri Ön İşleme Adımları
 
 1. **Eksik Değer Doldurma:**
-   - Numerik değişkenler → Median
-   - Kategorik değişkenler → Mode (en sık görülen)
+   - Kategorik değişkenler → Mode (en sık görülen değer)
 
 2. **Encoding:**
-   - Label Encoding (tüm kategorik değişkenler için)
+   - **Decision Tree**: One-Hot Encoding (186 feature)
+   - **Random Forest**: Label Encoding (12 feature)
+   - **Compare Models**: Her iki model için One-Hot Encoding
 
 3. **Train-Validation Split:**
    - 80% Train, 20% Validation
@@ -190,9 +236,10 @@ python compare_models.py
 
 ### Decision Tree
 ```python
-DecisionTreeCl4,              # Basit ağaç (4 seviye)
-    min_samples_split=200,    # Dallanma için min örnek
-    min_samples_leaf=100,     # Her yaprakta min örnek
+DecisionTreeClassifier(
+    max_depth=5,              # Ağaç derinliği (5 seviye)
+    min_samples_split=100,    # Dallanma için min örnek
+    min_samples_leaf=50,      # Her yaprakta min örnek
     criterion='gini',         # Bölünme kriteri
     class_weight='balanced'   # Sınıf dengesi
 )
@@ -207,8 +254,6 @@ RandomForestClassifier(
     min_samples_leaf=100,
     criterion='gini',
     class_weight='balanced',
-    n_jobs=-1,                # Paralel işleme
-    max_features='sqrt'       # Rastgele feature seçimi
     n_jobs=-1                 # Paralel işleme
 )
 ```
@@ -219,21 +264,31 @@ RandomForestClassifier(
 
 ```
 employee-attrition/
-├── aug_train.csv                      # Eğitim verisi
-├── random_forest_model.py             # Random Forest modeli
-├── compare_models.py                  # Model karşılaştırması
-├── decision_tree_analysis.png         # DT analiz grafikleri
-├── decision_tree_full.png             # Tam ağaç yapısı
-├── random_forest_analysis.png         # RF analiz grafikleri
-├── random_forest_single_tree.png      # RF tek ağaç örneği
-├── random_forest_tree_stats.png       # RF ağaç istatistikleriodeli
-├── compare_models.py                  # Model karşılaştırması
-├── decision_tree_analysis.png         # DT analiz grafikleri
-├── decision_tree_full.png             # Tam ağaç yapısı
-├── model_comparison.png               # Karşılaştırma grafikleri
-├── submission_decision_tree.csv       # DT tahminleri
-├── submission_random_forest.csv       # RF tahminleri
-└── README.md                          # Bu dosya
+├── data/
+│   ├── aug_train.csv                # Eğitim verisi
+│   ├── aug_test.csv                 # Test verisi
+│   └── sample_submission.csv        # Örnek submission formatı
+├── src/
+│   ├── decision_tree_model.py       # Decision Tree modeli
+│   ├── random_forest_model.py       # Random Forest modeli
+│   ├── compare_models.py            # Model karşılaştırması
+│   └── model_builders.py            # Yardımcı fonksiyonlar
+├── outputs/
+│   ├── decision_tree/               # DT çıktıları
+│   │   ├── decision_tree_analysis.png
+│   │   ├── decision_tree_full.png
+│   │   └── ... (diğer grafikler)
+│   ├── random_forest/               # RF çıktıları
+│   │   ├── random_forest_analysis.png
+│   │   ├── random_forest_single_tree.png
+│   │   └── ... (diğer grafikler)
+│   └── compare_models/              # Karşılaştırma çıktıları
+│       ├── model_comparison.png
+│       └── ... (diğer grafikler)
+├── submissions/
+│   ├── submission_decision_tree.csv # DT tahminleri
+│   └── submission_random_forest.csv # RF tahminleri
+└── README.md                        # Bu dosya
 ```
 
 ---
@@ -241,10 +296,13 @@ employee-attrition/
 ## 🎯 Sonuçlar ve Öneriler
 
 ### Sonuçlar:
-1. **Random Forest** daha yüksek accuracy (%76.6) sağladı
-2. **Decision Tree** daha yüksek recall (%80.2) gösterdi
-3. **Random Forest** daha dengeli performans sundu
-4. Overfitting, Random Forest'ta daha az
+1. **Random Forest (Label Encoding)** en yüksek accuracy (%76.77) sağladı
+2. **Decision Tree** en yüksek recall (%79.16) gösterdi - daha fazla attrition vakasını yakaladı
+3. **Random Forest** daha dengeli performans sundu (precision ve recall dengeli)
+4. Overfitting, Random Forest'ta daha az görüldü
+5. **Decision Tree** tek ağaçla %69.62 accuracy elde etti
+6. **Label Encoding** Random Forest için One-Hot Encoding'den daha iyi sonuç verdi
+7. **Compare Models** sonuçları: RF %75.23 vs DT %69.62 (One-Hot Encoding ile)
 
 ### Öneriler:
 - **Üretim için**: Random Forest (daha güvenilir)
