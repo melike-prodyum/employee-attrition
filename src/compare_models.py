@@ -7,16 +7,16 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import (
-    accuracy_score, 
-    precision_score, 
-    recall_score, 
+    accuracy_score,
+    precision_score,
+    recall_score,
     f1_score,
-    confusion_matrix,
+    roc_curve,
     roc_auc_score,
-    roc_curve
+    confusion_matrix
 )
 import warnings
 warnings.filterwarnings('ignore')
@@ -28,6 +28,18 @@ from model_builders import (
     get_decision_tree_params,
     get_random_forest_params
 )
+
+# Ortak utility fonksiyonlarını import et
+from data_utils import (
+    load_data,
+    prepare_features,
+    get_column_types,
+    fill_missing_values,
+    apply_one_hot_encoding,
+    create_output_directory,
+    create_submission_file
+)
+from evaluation_utils import calculate_metrics
 
 plt.style.use('seaborn-v0_8-darkgrid')
 sns.set_palette("husl")
@@ -42,55 +54,20 @@ print("="*70)
 print("\n[1] Veri Yükleme ve Ön İşleme")
 print("-"*70)
 
-train_df = pd.read_csv('../data/aug_train.csv')
-test_df = pd.read_csv('../data/aug_test.csv')
+# Veri setlerini yükle
+train_df, test_df, submission = load_data()
 
-y = train_df['target']
-X_train = train_df.drop(['enrollee_id', 'target'], axis=1)
-X_test = test_df.drop(['enrollee_id'], axis=1)
+# Features ve target'ı ayır
+X_train, X_test, y, train_ids, test_ids = prepare_features(train_df, test_df)
 
 # Kategorik ve numerik sütunları ayır
-categorical_cols = X_train.select_dtypes(include=['object']).columns.tolist()
-numerical_cols = X_train.select_dtypes(include=['int64', 'float64']).columns.tolist()
+categorical_cols, numerical_cols = get_column_types(X_train)
 
 # Eksik değerleri doldur
-for col in numerical_cols:
-    if X_train[col].isnull().sum() > 0:
-        median_val = X_train[col].median()
-        X_train[col].fillna(median_val, inplace=True)
-        X_test[col].fillna(median_val, inplace=True)
+X_train, X_test = fill_missing_values(X_train, X_test, categorical_cols, numerical_cols, verbose=False)
 
-for col in categorical_cols:
-    if X_train[col].isnull().sum() > 0:
-        mode_val = X_train[col].mode()[0] if not X_train[col].mode().empty else 'Unknown'
-        X_train[col].fillna(mode_val, inplace=True)
-        X_test[col].fillna(mode_val, inplace=True)
-
-# Kategorik değişkenleri encode et
-# Decision Tree için One-Hot Encoding (decision_tree_model.py ile aynı)
-# Random Forest için Label Encoding (random_forest_model.py ile aynı)
-# Karşılaştırma için One-Hot Encoding kullanacağız (daha iyi sonuçlar için)
-print("\n🔧 Kategorik değişkenleri One-Hot Encoding ile encode etme:")
-
-if categorical_cols:
-    # One-Hot Encoding uygula
-    X_train_encoded = pd.get_dummies(X_train, columns=categorical_cols, drop_first=False)
-    X_test_encoded = pd.get_dummies(X_test, columns=categorical_cols, drop_first=False)
-    
-    # Train ve test'te aynı sütunların olmasını sağla
-    missing_cols = set(X_train_encoded.columns) - set(X_test_encoded.columns)
-    for col in missing_cols:
-        X_test_encoded[col] = 0
-    
-    extra_cols = set(X_test_encoded.columns) - set(X_train_encoded.columns)
-    X_test_encoded = X_test_encoded.drop(columns=extra_cols)
-    
-    X_test_encoded = X_test_encoded[X_train_encoded.columns]
-    
-    X_train = X_train_encoded
-    X_test = X_test_encoded
-    
-    print(f"  ✓ One-Hot Encoding tamamlandı - {X_train.shape[1]} feature")
+# One-Hot Encoding uygula (karşılaştırma için)
+X_train, X_test = apply_one_hot_encoding(X_train, X_test, categorical_cols)
 
 # Train-validation split
 X_train_split, X_val_split, y_train_split, y_val_split = train_test_split(
@@ -127,19 +104,14 @@ dt_val_pred = dt_model.predict(X_val_split)
 dt_train_proba = dt_model.predict_proba(X_train_split)[:, 1]
 dt_val_proba = dt_model.predict_proba(X_val_split)[:, 1]
 
-# Metrikler
+# Metrikler - ortak fonksiyonla
+dt_train_metrics = calculate_metrics(y_train_split, dt_train_pred, dt_train_proba, 'Train ')
+dt_val_metrics = calculate_metrics(y_val_split, dt_val_pred, dt_val_proba, 'Val ')
+
 dt_metrics = {
     'Model': 'Decision Tree',
-    'Train Accuracy': accuracy_score(y_train_split, dt_train_pred),
-    'Val Accuracy': accuracy_score(y_val_split, dt_val_pred),
-    'Train Precision': precision_score(y_train_split, dt_train_pred),
-    'Val Precision': precision_score(y_val_split, dt_val_pred),
-    'Train Recall': recall_score(y_train_split, dt_train_pred),
-    'Val Recall': recall_score(y_val_split, dt_val_pred),
-    'Train F1': f1_score(y_train_split, dt_train_pred),
-    'Val F1': f1_score(y_val_split, dt_val_pred),
-    'Train ROC-AUC': roc_auc_score(y_train_split, dt_train_proba),
-    'Val ROC-AUC': roc_auc_score(y_val_split, dt_val_proba),
+    **dt_train_metrics,
+    **dt_val_metrics,
     'Tree Depth': dt_model.get_depth(),
     'Leaves': dt_model.get_n_leaves()
 }
@@ -181,19 +153,14 @@ rf_val_pred = rf_model.predict(X_val_split)
 rf_train_proba = rf_model.predict_proba(X_train_split)[:, 1]
 rf_val_proba = rf_model.predict_proba(X_val_split)[:, 1]
 
-# Metrikler
+# Metrikler - ortak fonksiyonla
+rf_train_metrics = calculate_metrics(y_train_split, rf_train_pred, rf_train_proba, 'Train ')
+rf_val_metrics = calculate_metrics(y_val_split, rf_val_pred, rf_val_proba, 'Val ')
+
 rf_metrics = {
     'Model': 'Random Forest',
-    'Train Accuracy': accuracy_score(y_train_split, rf_train_pred),
-    'Val Accuracy': accuracy_score(y_val_split, rf_val_pred),
-    'Train Precision': precision_score(y_train_split, rf_train_pred),
-    'Val Precision': precision_score(y_val_split, rf_val_pred),
-    'Train Recall': recall_score(y_train_split, rf_train_pred),
-    'Val Recall': recall_score(y_val_split, rf_val_pred),
-    'Train F1': f1_score(y_train_split, rf_train_pred),
-    'Val F1': f1_score(y_val_split, rf_val_pred),
-    'Train ROC-AUC': roc_auc_score(y_train_split, rf_train_proba),
-    'Val ROC-AUC': roc_auc_score(y_val_split, rf_val_proba),
+    **rf_train_metrics,
+    **rf_val_metrics,
     'N Trees': rf_model.n_estimators
 }
 
@@ -254,8 +221,7 @@ print("\n[5] Karşılaştırma Grafikleri")
 print("-"*70)
 
 # outputs/compare_models klasörünü oluştur
-import os
-os.makedirs('../outputs/compare_models', exist_ok=True)
+output_dir = create_output_directory('compare_models')
 
 # Birleşik görsel
 fig = plt.figure(figsize=(18, 12))
@@ -482,14 +448,11 @@ print("⏳ Final Random Forest modeli eğitiliyor...")
 final_rf.fit(X_train, y)
 print("✓ Eğitim tamamlandı!")
 
-# Test tahminleri
-rf_test_predictions = final_rf.predict_proba(X_test)[:, 1]
-
-# Submission dosyası
-submission = pd.read_csv('../data/sample_submission.csv')
-submission['target'] = rf_test_predictions
-os.makedirs('../submissions', exist_ok=True)
-submission.to_csv('../submissions/submission_random_forest.csv', index=False)
+# Submission dosyasını oluştur
+submission_template = '../data/sample_submission.csv'
+rf_test_predictions, submission_df = create_submission_file(
+    final_rf, X_test, submission_template, 'submission_random_forest.csv'
+)
 print(f"✓ Random Forest submission dosyası: submissions/submission_random_forest.csv")
 
 # ============================================================================

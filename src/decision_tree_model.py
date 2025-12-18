@@ -7,21 +7,37 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier, plot_tree
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.tree import plot_tree
 from sklearn.metrics import (
-    accuracy_score, 
-    precision_score, 
-    recall_score, 
+    accuracy_score,
+    precision_score,
+    recall_score,
     f1_score,
-    confusion_matrix,
-    classification_report,
-    roc_auc_score,
-    roc_curve
+    roc_curve,
+    roc_auc_score
 )
 import warnings
 warnings.filterwarnings('ignore')
+
+# Ortak utility fonksiyonlarını import et
+from data_utils import (
+    load_data,
+    print_data_info,
+    prepare_features,
+    get_column_types,
+    fill_missing_values,
+    apply_one_hot_encoding,
+    create_output_directory,
+    create_submission_file
+)
+from evaluation_utils import (
+    print_metrics,
+    print_classification_report,
+    print_confusion_matrix,
+    print_feature_importance
+)
 
 # Görselleştirme ayarları
 plt.style.use('seaborn-v0_8-darkgrid')
@@ -38,30 +54,8 @@ print("\n[1] Veri Yükleme ve Keşif Analizi")
 print("-"*70)
 
 # Veri setlerini yükle
-import os
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-train_df = pd.read_csv(os.path.join(project_root, 'data', 'aug_train.csv'))
-test_df = pd.read_csv(os.path.join(project_root, 'data', 'aug_test.csv'))
-submission = pd.read_csv(os.path.join(project_root, 'data', 'sample_submission.csv'))
-
-print(f"✓ Train veri seti boyutu: {train_df.shape}")
-print(f"✓ Test veri seti boyutu: {test_df.shape}")
-print(f"\nSütunlar: {list(train_df.columns)}")
-
-# Target dağılımı
-print(f"\n📊 Target Dağılımı:")
-print(train_df['target'].value_counts())
-print(f"Target oranı: {train_df['target'].value_counts(normalize=True)}")
-
-# Eksik değerler
-print(f"\n📋 Eksik Değerler:")
-missing = train_df.isnull().sum()
-missing_pct = (missing / len(train_df)) * 100
-missing_df = pd.DataFrame({
-    'Eksik Sayısı': missing,
-    'Yüzde': missing_pct
-}).sort_values('Eksik Sayısı', ascending=False)
-print(missing_df[missing_df['Eksik Sayısı'] > 0])
+train_df, test_df, submission = load_data()
+print_data_info(train_df, test_df)
 
 # ============================================================================
 # 2. VERİ ÖN İŞLEME
@@ -69,72 +63,22 @@ print(missing_df[missing_df['Eksik Sayısı'] > 0])
 print("\n[2] Veri Ön İşleme")
 print("-"*70)
 
-# enrollee_id'yi ayır (model için kullanılmayacak)
-train_ids = train_df['enrollee_id']
-test_ids = test_df['enrollee_id']
-
-# Target değişkeni ayır
-y = train_df['target']
-X_train = train_df.drop(['enrollee_id', 'target'], axis=1)
-X_test = test_df.drop(['enrollee_id'], axis=1)
+# Features ve target'ı ayır
+X_train, X_test, y, train_ids, test_ids = prepare_features(train_df, test_df)
 
 print(f"✓ Feature sayısı: {X_train.shape[1]}")
 
 # Kategorik ve numerik sütunları ayır
-categorical_cols = X_train.select_dtypes(include=['object']).columns.tolist()
-numerical_cols = X_train.select_dtypes(include=['int64', 'float64']).columns.tolist()
+categorical_cols, numerical_cols = get_column_types(X_train)
 
 print(f"✓ Kategorik sütunlar ({len(categorical_cols)}): {categorical_cols}")
 print(f"✓ Numerik sütunlar ({len(numerical_cols)}): {numerical_cols}")
 
 # Eksik değerleri doldur
-print("\n🔧 Eksik değerleri doldurma:")
-
-# Numerik sütunlar için median
-for col in numerical_cols:
-    if X_train[col].isnull().sum() > 0:
-        median_val = X_train[col].median()
-        X_train[col].fillna(median_val, inplace=True)
-        X_test[col].fillna(median_val, inplace=True)
-        print(f"  - {col}: median ile dolduruldu")
-
-# Kategorik sütunlar için mode (en sık görülen değer)
-for col in categorical_cols:
-    if X_train[col].isnull().sum() > 0:
-        mode_val = X_train[col].mode()[0] if not X_train[col].mode().empty else 'Unknown'
-        X_train[col].fillna(mode_val, inplace=True)
-        X_test[col].fillna(mode_val, inplace=True)
-        print(f"  - {col}: mode ile dolduruldu")
+X_train, X_test = fill_missing_values(X_train, X_test, categorical_cols, numerical_cols)
 
 # Kategorik değişkenleri One-Hot Encoding ile encode et
-print("\n🔧 Kategorik değişkenleri One-Hot Encoding ile encode etme:")
-
-if categorical_cols:
-    # One-Hot Encoding uygula
-    X_train_encoded = pd.get_dummies(X_train, columns=categorical_cols, drop_first=False)
-    X_test_encoded = pd.get_dummies(X_test, columns=categorical_cols, drop_first=False)
-    
-    # Train ve test'te aynı sütunların olmasını sağla
-    # Test'te olmayan sütunları ekle (0 değeriyle)
-    missing_cols = set(X_train_encoded.columns) - set(X_test_encoded.columns)
-    for col in missing_cols:
-        X_test_encoded[col] = 0
-    
-    # Test'te olup train'de olmayan sütunları kaldır
-    extra_cols = set(X_test_encoded.columns) - set(X_train_encoded.columns)
-    X_test_encoded = X_test_encoded.drop(columns=extra_cols)
-    
-    # Sütun sırasını aynı yap
-    X_test_encoded = X_test_encoded[X_train_encoded.columns]
-    
-    X_train = X_train_encoded
-    X_test = X_test_encoded
-    
-    print(f"  - One-Hot Encoding tamamlandı")
-    print(f"  - Toplam {len(categorical_cols)} kategorik sütun encode edildi")
-    for col in categorical_cols:
-        encoded_cols = [c for c in X_train.columns if c.startswith(f"{col}_")]
-        print(f"  - {col}: {len(encoded_cols)} kategoriye dönüştürüldü")
+X_train, X_test = apply_one_hot_encoding(X_train, X_test, categorical_cols, verbose='detailed')
 
 print(f"\n✓ Veri ön işleme tamamlandı!")
 print(f"✓ Train shape: {X_train.shape}")
@@ -154,23 +98,19 @@ X_train_split, X_val_split, y_train_split, y_val_split = train_test_split(
 print(f"✓ Train set: {X_train_split.shape[0]} örnekleri")
 print(f"✓ Validation set: {X_val_split.shape[0]} örnekleri")
 
-# Decision Tree modeli - Basitleştirilmiş parametreler (Random Forest ile karşılaştırma için)
-print("\n🌳 Decision Tree parametreleri (Basitleştirilmiş):")
-print("  - max_depth: 5 (ağacın maksimum derinliği - sınırlandırıldı)")
-print("  - min_samples_split: 100 (dallanma için minimum örnek sayısı)")
-print("  - min_samples_leaf: 50 (yaprak düğümdeki minimum örnek sayısı)")
-print("  - criterion: gini (bölünme kriteri)")
-print("  - random_state: 42")
-print("  - class_weight: balanced (dengesiz veri için)")
+# Decision Tree modeli - model_builders'dan al
+from model_builders import build_decision_tree, get_decision_tree_params
 
-dt_model = DecisionTreeClassifier(
-    max_depth=5,                    # Daha sığ ağaç - overfitting önleme
-    min_samples_split=100,          # Daha fazla örnek gerekli
-    min_samples_leaf=50,            # Daha büyük yaprak düğümleri
-    criterion='gini',               # Gini impurity kullan
-    random_state=42,
-    class_weight='balanced'         # Dengesiz veri için sınıf ağırlıkları
-)
+dt_params = get_decision_tree_params()
+print("\n🌳 Decision Tree parametreleri:")
+print(f"  - max_depth: {dt_params['max_depth']} (ağacın maksimum derinliği)")
+print(f"  - min_samples_split: {dt_params['min_samples_split']} (dallanma için minimum örnek sayısı)")
+print(f"  - min_samples_leaf: {dt_params['min_samples_leaf']} (yaprak düğümdeki minimum örnek sayısı)")
+print(f"  - criterion: {dt_params['criterion']} (bölünme kriteri)")
+print(f"  - random_state: {dt_params['random_state']}")
+print(f"  - class_weight: {dt_params['class_weight']} (dengesiz veri için)")
+
+dt_model = build_decision_tree()
 
 print("\n⏳ Model eğitiliyor...")
 dt_model.fit(X_train_split, y_train_split)
@@ -198,45 +138,17 @@ y_val_proba = dt_model.predict_proba(X_val_split)[:, 1]
 print("\n📈 PERFORMANS METRİKLERİ")
 print("="*70)
 
-print("\n🔹 Train Seti:")
-print(f"  • Accuracy:  {accuracy_score(y_train_split, y_train_pred):.4f}")
-print(f"  • Precision: {precision_score(y_train_split, y_train_pred):.4f}")
-print(f"  • Recall:    {recall_score(y_train_split, y_train_pred):.4f}")
-print(f"  • F1-Score:  {f1_score(y_train_split, y_train_pred):.4f}")
-print(f"  • ROC-AUC:   {roc_auc_score(y_train_split, y_train_proba):.4f}")
-
-print("\n🔹 Validation Seti:")
-print(f"  • Accuracy:  {accuracy_score(y_val_split, y_val_pred):.4f}")
-print(f"  • Precision: {precision_score(y_val_split, y_val_pred):.4f}")
-print(f"  • Recall:    {recall_score(y_val_split, y_val_pred):.4f}")
-print(f"  • F1-Score:  {f1_score(y_val_split, y_val_pred):.4f}")
-print(f"  • ROC-AUC:   {roc_auc_score(y_val_split, y_val_proba):.4f}")
+print_metrics(y_train_split, y_train_pred, y_train_proba, 'Train')
+print_metrics(y_val_split, y_val_pred, y_val_proba, 'Validation')
 
 # Classification Report
-print("\n📋 Detaylı Sınıflandırma Raporu (Validation):")
-print("-"*70)
-print(classification_report(y_val_split, y_val_pred, 
-                          target_names=['Not Leave (0)', 'Leave (1)']))
+print_classification_report(y_val_split, y_val_pred)
 
 # Confusion Matrix
-cm = confusion_matrix(y_val_split, y_val_pred)
-print("\n🔢 Confusion Matrix (Validation):")
-print(cm)
-print(f"  True Negatives:  {cm[0, 0]}")
-print(f"  False Positives: {cm[0, 1]}")
-print(f"  False Negatives: {cm[1, 0]}")
-print(f"  True Positives:  {cm[1, 1]}")
+cm = print_confusion_matrix(y_val_split, y_val_pred)
 
 # Feature Importance
-print("\n⭐ En Önemli Özellikler (Top 10):")
-print("-"*70)
-feature_importance = pd.DataFrame({
-    'Feature': X_train.columns,
-    'Importance': dt_model.feature_importances_
-}).sort_values('Importance', ascending=False)
-
-for idx, row in feature_importance.head(10).iterrows():
-    print(f"  {row['Feature']:30s} : {row['Importance']:.4f}")
+feature_importance = print_feature_importance(dt_model, X_train.columns)
 
 # ============================================================================
 # 5. GÖRSELLEŞTİRME
@@ -245,11 +157,7 @@ print("\n[5] Görselleştirmeler Oluşturuluyor...")
 print("-"*70)
 
 # outputs/decision_tree klasörünü oluştur
-os.makedirs('../outputs/decision_tree', exist_ok=True)
-
-# outputs klasörünü oluştur
-import os
-os.makedirs('../outputs', exist_ok=True)
+output_dir = create_output_directory('decision_tree')
 
 # Figure oluştur - Birleşik görsel
 fig = plt.figure(figsize=(20, 12))
@@ -477,24 +385,14 @@ print("-"*70)
 
 # Tüm train verisi ile son modeli eğit
 print("⏳ Final model tüm train verisi ile eğitiliyor...")
-final_model = DecisionTreeClassifier(
-    max_depth=7,
-    min_samples_split=50,
-    min_samples_leaf=25,
-    criterion='gini',
-    random_state=42,
-    class_weight='balanced'
-)
+final_model = build_decision_tree()
 final_model.fit(X_train, y)
 print("✓ Final model eğitimi tamamlandı!")
 
-# Test tahminleri
-test_predictions = final_model.predict_proba(X_test)[:, 1]
-
 # Submission dosyasını hazırla
-os.makedirs('../submissions', exist_ok=True)
-submission['target'] = test_predictions
-submission.to_csv('../submissions/submission_decision_tree.csv', index=False)
+test_predictions, submission_df = create_submission_file(
+    final_model, X_test, submission, 'submission_decision_tree.csv'
+)
 print(f"✓ Submission dosyası oluşturuldu: submissions/submission_decision_tree.csv")
 print(f"✓ Tahmin edilen test örnekleri: {len(test_predictions)}")
 print(f"\nTahmin İstatistikleri:")
