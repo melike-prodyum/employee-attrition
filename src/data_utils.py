@@ -219,7 +219,9 @@ def create_output_directory(model_name):
     Returns:
         str: Output klasörünün yolu
     """
-    output_dir = f'../outputs/{model_name}'
+    # Proje kök dizinini bul
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    output_dir = os.path.join(project_root, 'outputs', model_name)
     os.makedirs(output_dir, exist_ok=True)
     return output_dir
 
