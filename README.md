@@ -340,8 +340,7 @@ RandomForestClassifier(
 ## 📂 Proje Yapısı
 
 ```
-employee-attrition/
-├── .venv/                              # Python virtual environment
+employee-attrition/                          
 ├── .git/                               # Git repository
 ├── .gitignore                          # Git ignore dosyası
 │
@@ -357,40 +356,21 @@ employee-attrition/
 │   ├── model_builders.py               # Model builder fonksiyonları
 │   ├── data_utils.py                   # Veri işleme utility fonksiyonları
 │   ├── evaluation_utils.py             # Değerlendirme utility fonksiyonları
-│   └── __pycache__/                    # Python cache dosyaları
 │
 ├── outputs/
 │   ├── decision_tree/                  # Decision Tree çıktıları
-│   │   ├── decision_tree_analysis.png
-│   │   ├── decision_tree_full.png
-│   │   ├── dt_confusion_matrix.png
-│   │   ├── dt_feature_importance.png
-│   │   └── dt_roc_curve.png
 │   │
 │   ├── random_forest/                  # Random Forest çıktıları
-│   │   ├── random_forest_analysis.png
-│   │   ├── random_forest_single_tree.png
-│   │   ├── random_forest_tree_stats.png
-│   │   ├── rf_confusion_matrix.png
-│   │   ├── rf_feature_importance.png
-│   │   └── rf_roc_curve.png
 │   │
 │   └── compare_models/                 # Karşılaştırma çıktıları
-│       ├── model_comparison.png
-│       ├── compare_metrics.png
-│       ├── compare_roc_curves.png
-│       ├── compare_dt_confusion_matrix.png
-│       ├── compare_rf_confusion_matrix.png
-│       ├── compare_feature_importance.png
-│       └── compare_overfitting.png
 │
 ├── submissions/
 │   ├── submission_decision_tree.csv    # Decision Tree test tahminleri
 │   └── submission_random_forest.csv    # Random Forest test tahminleri
 │
-├── docs/                               # Dokümantasyon (opsiyonel)
+├── docs/                               # Dokümantasyon
 ├── requirements.txt                    # Python paket gereksinimleri
-└── README.md                           # Bu dosya
+└── README.md                           # Temel bilgiler
 ```
 
 ---
